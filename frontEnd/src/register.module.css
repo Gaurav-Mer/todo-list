@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /*
+    * Created with https://www.css-gradient.com
+    * Gradient link: https://www.css-gradient.com/?c1=e2e7ff&c2=ffffff&gt=l&gd=dbb
+    */
+
+  height: 100vh;
+}
+
+.main {
+  background: #e2e7ff;
+  background: linear-gradient(0deg, #e2e7ff, #ffffff);
+  width: 100vw;
+}
+
+@media only screen and (max-width: 600px) {
+  body {
+    background-color: green;
+  }
+}
