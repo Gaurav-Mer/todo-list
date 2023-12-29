@@ -1,6 +1,9 @@
-const register = (req, res) => {
-    console.log("MY REQ IS ", req.body);
-    res.send({ status: 200, message: "successfully" })
-}
+const express = require("express");
+const router = express.Router();
 
-module.exports = { register }
+const { signUp, testing } = require("../controllers/auth");
+
+router.get("/", testing);
+router.post("/", signUp);
+
+module.exports = router;

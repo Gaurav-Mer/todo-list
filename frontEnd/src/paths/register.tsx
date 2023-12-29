@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../register.module.css";
 
 export default function Register() {
@@ -70,7 +70,6 @@ export default function Register() {
   const sendDataToBackEnd = async () => {
     const dataToBeSend = JSON.parse(JSON.stringify(formData));
     delete dataToBeSend.confirmPassword;
-
     try {
       const response = await fetch("http://localhost:3001/register", {
         method: "POST",
@@ -79,7 +78,6 @@ export default function Register() {
         },
         body: JSON.stringify(dataToBeSend),
       });
-	  
     } catch (error) {
       console.log("error is =>", error);
     }
@@ -93,6 +91,18 @@ export default function Register() {
     setErrorData({});
     sendDataToBackEnd();
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/register");
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array to run the effect once on mount
 
   return (
     <div className={styles.main}>
