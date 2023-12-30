@@ -1,8 +1,8 @@
 export const taskType = {
-  1: "Completed",
-  2: "Pending",
-  3: "Review",
-  4: "On Hold",
-  5: "Cancel",
+  1: "New",
+  2: "Completed",
+  3: "Pending",
+  4: "Review",
+  5: "On Hold",
+  6: "Cancel",
 };
-

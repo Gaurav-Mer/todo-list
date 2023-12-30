@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true },
     avatar: { type: String },
     u_id: { type: String, unique: true },
-    isActive: { type: Boolean }
+    isActive: { type: Boolean },
+    role: { type: String }
 });
 
 const UserModel = mongoose.model('UserSchema', UserSchema);

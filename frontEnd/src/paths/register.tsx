@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styles from "../register.module.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   interface formFormat {
     name: string;
     email: string;
@@ -18,6 +21,16 @@ export default function Register() {
   });
   type error = Record<string, string>;
   const [errorData, setErrorData] = useState<error>({});
+  const [loader, setLoader] = useState<Boolean>(false);
+  interface PF {
+    password: Boolean;
+    cPassword: Boolean;
+  }
+  const [showPassword, setShowPassword] = useState<PF>({
+    password: false,
+    cPassword: false,
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -78,31 +91,43 @@ export default function Register() {
         },
         body: JSON.stringify(dataToBeSend),
       });
+      if (response?.status !== 200) {
+        setLoader(false);
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.log("error is =>", error);
+      setLoader(false);
     }
   };
   const onSubmitForm = (e: React.FormEvent) => {
+    setLoader(true);
     e.preventDefault();
     const errorList = validateData(formData);
     if (Object.keys(errorList)?.length > 0) {
+      setLoader(false);
       return setErrorData(errorList);
     }
     setErrorData({});
     sendDataToBackEnd();
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:3001/register");
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []); // Empty dependency array to run the effect once on mount
+  const showPasswordOrNot = (type: string) => {
+    if (type === "password") {
+      setShowPassword((prev: PF) => {
+        let obj = { ...prev };
+        obj[type] = !obj.password;
+        return obj;
+      });
+    } else {
+      setShowPassword((prev: PF) => {
+        let obj = { ...prev };
+        obj.cPassword = !obj.cPassword;
+        return obj;
+      });
+    }
+  };
 
   return (
     <div className={styles.main}>
@@ -200,7 +225,7 @@ export default function Register() {
                   </svg>
                 </div>
                 <input
-                  type="password"
+                  type={showPassword?.password ? "text" : "password"}
                   id="exampleInputPassword1"
                   placeholder="**********"
                   onChange={handleChange}
@@ -209,6 +234,19 @@ export default function Register() {
                     errorData?.password ? "is-invalid " : ""
                   }`}
                 />
+                <div className="input-group-text">
+                  {!showPassword?.password ? (
+                    <i
+                      onClick={() => showPasswordOrNot("password")}
+                      className="fa-solid fa-eye"
+                    ></i>
+                  ) : (
+                    <i
+                      onClick={() => showPasswordOrNot("password")}
+                      className="fa-solid fa-eye-slash fa-sm"
+                    ></i>
+                  )}
+                </div>
               </div>
               {errorData?.password ? (
                 <div className="text-danger">{errorData?.password}</div>
@@ -235,7 +273,7 @@ export default function Register() {
                   </svg>
                 </div>
                 <input
-                  type="password"
+                  type={showPassword?.cPassword ? "text" : "password"}
                   id="exampleInputPassword1"
                   placeholder="**********"
                   onChange={handleChange}
@@ -244,6 +282,20 @@ export default function Register() {
                     errorData?.confirmPassword ? "is-invalid " : ""
                   }`}
                 />
+
+                <div className="input-group-text">
+                  {!showPassword?.cPassword ? (
+                    <i
+                      onClick={() => showPasswordOrNot("cPassword")}
+                      className="fa-solid fa-eye"
+                    ></i>
+                  ) : (
+                    <i
+                      onClick={() => showPasswordOrNot("cPassword")}
+                      className="fa-solid fa-eye-slash fa-sm"
+                    ></i>
+                  )}
+                </div>
               </div>
               {errorData?.confirmPassword ? (
                 <div className="text-danger">{errorData?.confirmPassword}</div>
@@ -319,15 +371,21 @@ export default function Register() {
                 )}
               </div>
             </div>
-
-            <button
-              onClick={onSubmitForm}
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: "100%" }}
-            >
-              Submit
-            </button>
+            {loader ? (
+              <div
+                className="spinner-border text-primary  d-flex justify-content-center mx-auto "
+                role="status"
+              ></div>
+            ) : (
+              <button
+                onClick={onSubmitForm}
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: "100%" }}
+              >
+                Submit
+              </button>
+            )}
             <p className="mt-2">
               Already Member ? <a href="/login">log In now</a>
             </p>
