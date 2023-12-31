@@ -1,6 +1,10 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../register.module.css";
+import { useNavigate } from "react-router-dom";
+
 export default function Register() {
+  const navigate = useNavigate();
+
   interface formFormat {
     name: string;
     email: string;
@@ -15,6 +19,18 @@ export default function Register() {
     password: "",
     confirmPassword: "",
   });
+  type error = Record<string, string>;
+  const [errorData, setErrorData] = useState<error>({});
+  const [loader, setLoader] = useState<Boolean>(false);
+  interface PF {
+    password: Boolean;
+    cPassword: Boolean;
+  }
+  const [showPassword, setShowPassword] = useState<PF>({
+    password: false,
+    cPassword: false,
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -32,18 +48,98 @@ export default function Register() {
     }
   };
 
+  const validateData = (data: formFormat) => {
+    let error: Record<string, string> = {}; // Define the type of the error object
+    if (!data?.name || data?.name?.length <= 0) {
+      error["name"] = "Please Enter name";
+    } else if (data?.name?.length > 20) {
+      error["name"] = "Maximum 20 length allowed for name";
+    }
+    if (!data?.email || data?.email?.length <= 0) {
+      error["email"] = "Please Enter email";
+    } else if (data?.email?.length > 40) {
+      error["email"] = "Maximum 40 length allowed";
+    }
+
+    if (!data?.password || data?.password?.length <= 0) {
+      error["password"] = "Password can not be empty";
+    } else if (data?.password?.length > 20) {
+      error["password"] = "Maximum 20 length allowed";
+    }
+
+    if (!data?.confirmPassword || data?.confirmPassword?.length <= 0) {
+      error["confirmPassword"] = "confirmPassword can not be empty";
+    } else if (data?.confirmPassword?.length > 20) {
+      error["confirmPassword"] = "Maximum 20 length allowed";
+    }
+
+    if (data?.password !== data?.confirmPassword) {
+      error["confirmPassword"] = "Password did not match";
+    }
+
+    return error;
+  };
+
+  const sendDataToBackEnd = async () => {
+    const dataToBeSend = JSON.parse(JSON.stringify(formData));
+    delete dataToBeSend.confirmPassword;
+    try {
+      const response = await fetch("http://localhost:3001/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToBeSend),
+      });
+      if (response?.status !== 200) {
+        setLoader(false);
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log("error is =>", error);
+      setLoader(false);
+    }
+  };
+  const onSubmitForm = (e: React.FormEvent) => {
+    setLoader(true);
+    e.preventDefault();
+    const errorList = validateData(formData);
+    if (Object.keys(errorList)?.length > 0) {
+      setLoader(false);
+      return setErrorData(errorList);
+    }
+    setErrorData({});
+    sendDataToBackEnd();
+  };
+
+  const showPasswordOrNot = (type: string) => {
+    if (type === "password") {
+      setShowPassword((prev: PF) => {
+        let obj = { ...prev };
+        obj[type] = !obj.password;
+        return obj;
+      });
+    } else {
+      setShowPassword((prev: PF) => {
+        let obj = { ...prev };
+        obj.cPassword = !obj.cPassword;
+        return obj;
+      });
+    }
+  };
+
   return (
     <div className={styles.main}>
       <div className={styles.container}>
         <div className="mt-5">
           <h3>Create your account</h3>
-          <h6 className="fw-bolder text-center">Welcome to quick talk</h6>
-          <form>
+          <div>
             <div className="mb-3">
               <label htmlFor="exampleInputEmail1" className="form-label">
                 Enter your Name
               </label>
-              <div className="input-group mb-3">
+              <div className="input-group ">
                 <div className="input-group-text">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -60,22 +156,26 @@ export default function Register() {
                   onChange={(e) => handleChange(e)}
                   name="name"
                   type="email"
-                  className="form-control"
                   id="exampleInputEmail1"
                   aria-describedby="emailHelp"
                   placeholder="John"
+                  className={`form-control ${
+                    errorData?.name ? "is-invalid " : ""
+                  }`}
                 />
-                {/* <div id="emailHelp" className="form-text text-danger">
-                            We'll never share your email with anyone else.
-                        </div> */}
               </div>
+              {errorData?.name ? (
+                <div className="text-danger">{errorData?.name}</div>
+              ) : (
+                ""
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="exampleInputEmail1" className="form-label">
                 Enter your Email
               </label>
 
-              <div className="input-group mb-3">
+              <div className="input-group">
                 <div className="input-group-text">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -92,19 +192,26 @@ export default function Register() {
                   type="email"
                   onChange={handleChange}
                   name="email"
-                  className="form-control"
                   id="exampleInputEmail1"
                   aria-describedby="emailHelp"
                   placeholder="abc@gmail.com"
+                  className={`form-control ${
+                    errorData?.email ? "is-invalid " : ""
+                  }`}
                 />
               </div>
+              {errorData?.email ? (
+                <div className="text-danger">{errorData?.email}</div>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="mb-3">
               <label htmlFor="exampleInputEmail1" className="form-label">
                 Enter Password
               </label>
-              <div className="input-group mb-3">
+              <div className="input-group ">
                 <div className="input-group-text">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -118,14 +225,34 @@ export default function Register() {
                   </svg>
                 </div>
                 <input
-                  type="password"
-                  className="form-control"
+                  type={showPassword?.password ? "text" : "password"}
                   id="exampleInputPassword1"
                   placeholder="**********"
                   onChange={handleChange}
                   name="password"
+                  className={`form-control ${
+                    errorData?.password ? "is-invalid " : ""
+                  }`}
                 />
+                <div className="input-group-text">
+                  {!showPassword?.password ? (
+                    <i
+                      onClick={() => showPasswordOrNot("password")}
+                      className="fa-solid fa-eye"
+                    ></i>
+                  ) : (
+                    <i
+                      onClick={() => showPasswordOrNot("password")}
+                      className="fa-solid fa-eye-slash fa-sm"
+                    ></i>
+                  )}
+                </div>
               </div>
+              {errorData?.password ? (
+                <div className="text-danger">{errorData?.password}</div>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="mb-3">
@@ -146,14 +273,35 @@ export default function Register() {
                   </svg>
                 </div>
                 <input
-                  type="password"
-                  className="form-control"
+                  type={showPassword?.cPassword ? "text" : "password"}
                   id="exampleInputPassword1"
                   placeholder="**********"
                   onChange={handleChange}
                   name="confirmPassword"
+                  className={`form-control ${
+                    errorData?.confirmPassword ? "is-invalid " : ""
+                  }`}
                 />
+
+                <div className="input-group-text">
+                  {!showPassword?.cPassword ? (
+                    <i
+                      onClick={() => showPasswordOrNot("cPassword")}
+                      className="fa-solid fa-eye"
+                    ></i>
+                  ) : (
+                    <i
+                      onClick={() => showPasswordOrNot("cPassword")}
+                      className="fa-solid fa-eye-slash fa-sm"
+                    ></i>
+                  )}
+                </div>
               </div>
+              {errorData?.confirmPassword ? (
+                <div className="text-danger">{errorData?.confirmPassword}</div>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="mb-3">
@@ -223,18 +371,25 @@ export default function Register() {
                 )}
               </div>
             </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: "100%" }}
-            >
-              Submit
-            </button>
+            {loader ? (
+              <div
+                className="spinner-border text-primary  d-flex justify-content-center mx-auto "
+                role="status"
+              ></div>
+            ) : (
+              <button
+                onClick={onSubmitForm}
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: "100%" }}
+              >
+                Submit
+              </button>
+            )}
             <p className="mt-2">
               Already Member ? <a href="/login">log In now</a>
             </p>
-          </form>
+          </div>
         </div>
       </div>
     </div>

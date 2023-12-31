@@ -1,44 +1,35 @@
-import { useEffect, useState } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./components/home";
-import Register from "./components/register";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./paths/home";
+import Register from "./paths/register";
+import Login from "./paths/login";
+import Testing from "./paths/testing";
+import { useEffect } from "react";
 
-function App() {
-  const handleData = async () => {
-    try {
-      const response = await fetch("http://localhost:3001", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        console.log("Data submitted successfully!");
-        // Add any further actions upon successful submission
-      } else {
-        console.error("Failed to submit data.");
-      }
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
-  };
+const AppRouter: React.FC = () => {
+  const userData = { name: "Gaurav" };
   useEffect(() => {
-    handleData();
+    console.log("guarav here ");
   }, []);
-
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/contact" element={<Home />} />
-        </Routes>
-      </BrowserRouter>{" "}
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            Object.keys(userData)?.length > 0 ? (
+              <Home />
+            ) : (
+              <Navigate replace to={"/register"} />
+            )
+          }
+        />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/test" element={<Testing />} />
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
-export default App;
+export default AppRouter;
