@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../register.module.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../reduxConfig/slices/todoSlices";
+import { setUserData, toggleRedirect } from "../reduxConfig/slices/todoSlices";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -62,7 +62,6 @@ export default function Login() {
         credentials: "include", // Include credentials for cross-origin requests
       });
       const jsonData = await response.json();
-      console.log("Response is ", jsonData);
 
       if (response?.status !== 200) {
         setLoader(false);
@@ -73,7 +72,7 @@ export default function Login() {
         ) {
           dispatch(setUserData({ tokenData: jsonData?.rData }));
         }
-
+        dispatch(toggleRedirect(false));
         navigate("/");
       }
     } catch (error) {

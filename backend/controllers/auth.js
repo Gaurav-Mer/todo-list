@@ -1,6 +1,5 @@
 const { UserModel } = require("../models/user");
 let bcrypt = require('bcryptjs');
-const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const extractDataFromToken = require("../commonFunc/getToken")
 
@@ -39,15 +38,14 @@ const signUp = async (req, res) => {
     const data = await UserModel.create(userData);
     //jwt create here and set in cookie for httpOnly
 
-    res.status(200).json({ msg: "user added successfulluy" })
+    res.status(200).json({ msg: "user added successfully!" })
 }
 
 const testing = async (req, res) => {
-    console.log("req is ", req.body);
-    res.send({ name: "gaurav" })
+    res.send({ name: "" })
 }
 
-//  ---------------------LOGIC FOR THE LOGIN PURPUSE----------------------------------------
+//  ---------------------LOGIC FOR THE LOGIN PURPOSE----------------------------------------
 const login = async (req, res) => {
     const { email, password } = req.body;
     const isAlready = await UserModel.findOne({ email });
@@ -56,24 +54,23 @@ const login = async (req, res) => {
     }
 
     ///valdiate password here :-
-    const pwMatch = await bcrypt.compare(password, isAlready.password);
-    if (!pwMatch) {
+    const passMatch = await bcrypt.compare(password, isAlready.password);
+    if (!passMatch) {
         res.status(400).json({ msg: "Invalid Password" })
     } else {
         const token = jwt.sign({ id: isAlready?._id, name: isAlready?.name, email: isAlready?.email }, SECRET_KEY, { expiresIn: '1h' });
 
         // Set the JWT in an HttpOnly cookie
         const oneHourFromNow = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour in milliseconds
-        res.cookie('jwt', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'Lax', secure: true });
+        res.cookie('jwt', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
         let userData = {};
         if (token) {
             const respData = await extractDataFromToken(token);
             if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
-                userData = respData?.data
+                userData = respData?.data;
             }
         }
         //checking that token email and currentEmail match then sending user data as well
-
         res.status(200).json({ msg: "Login Successfully", token: "token", rData: userData })
     }
 }
