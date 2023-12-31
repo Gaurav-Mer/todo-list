@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styles from "../register.module.css";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../reduxConfig/slices/todoSlices";
 
 export default function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   interface formFormat {
     email: string;
@@ -58,9 +61,19 @@ export default function Login() {
         body: JSON.stringify(dataToBeSend),
         credentials: "include", // Include credentials for cross-origin requests
       });
+      const jsonData = await response.json();
+      console.log("Response is ", jsonData);
+
       if (response?.status !== 200) {
         setLoader(false);
       } else {
+        if (
+          jsonData?.hasOwnProperty("rData") &&
+          Object.keys(jsonData?.rData)?.length > 0
+        ) {
+          dispatch(setUserData({ tokenData: jsonData?.rData }));
+        }
+
         navigate("/");
       }
     } catch (error) {

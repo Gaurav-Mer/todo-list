@@ -37,7 +37,6 @@ const signUp = async (req, res) => {
     console.log("error data", errorData);
     //bcrypt password here
     const data = await UserModel.create(userData);
-    console.log("data is ==>", data);
     //jwt create here and set in cookie for httpOnly
 
     res.status(200).json({ msg: "user added successfulluy" })
@@ -65,11 +64,10 @@ const login = async (req, res) => {
 
         // Set the JWT in an HttpOnly cookie
         const oneHourFromNow = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour in milliseconds
-        res.cookie('jwt', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
+        res.cookie('jwt', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'Lax', secure: true });
         let userData = {};
         if (token) {
             const respData = await extractDataFromToken(token);
-            console.log("LOGIN TOKEN ", respData);
             if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
                 userData = respData?.data
             }

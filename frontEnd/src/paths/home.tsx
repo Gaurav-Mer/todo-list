@@ -3,8 +3,12 @@ import Navbar from "../components/navbar";
 import DesktopLeft from "../components/desktopLeft";
 import styles from "../register.module.css";
 import RightSide from "../components/rightSide";
+import { useSelector } from "react-redux";
 
 const Home: React.FC = () => {
+  const todoData = useSelector((state) => state);
+  console.log("todoData", todoData);
+
   return (
     <div className={`container-fluid p-0 ${styles.bg}`}>
       <Navbar />
