@@ -3,9 +3,7 @@ const cookieParser = require('cookie-parser');
 
 
 const addNewTodo = async (req, res) => {
-    const { title, description, dueDate, dueTime, assignTo, level, associateWith } = req.body;
-    console.log("USER DATA IS ", req.userData);
-    return res.status(400).json({ msg: "Can not added todo" })
+    const { title, description, dueDate, dueTime, assignTo, level, associateWith, avatar } = req.body;
     const newData = {
         title,
         description,
@@ -14,8 +12,10 @@ const addNewTodo = async (req, res) => {
         assignTo,
         level,
         createdAt: new Date().getTime(),
-        associateWith: []
+        associateWith,
+        avatar
     }
+
     const data = await TodoSchema.create(newData);
     if (data) {
         res.status(200).json({ msg: "Todo added successfully" })
@@ -26,5 +26,32 @@ const addNewTodo = async (req, res) => {
 
 }
 
+//----------------------- TO UPDATE TODOS ----------------------------
+const updateTodos = async (req, res) => {
+    const { title, description, dueDate, dueTime, assignTo, level, associateWith, id } = req.body;
+    const updateData = await TodoSchema.findByIdAndUpdate(id, { title, description, dueDate, dueTime, assignTo, level, associateWith }, { new: true });
+    if (updateData) {
+        return res.status(200).json({ success: true, msg: "Updated successfully!" })
+    }
+    return res.status(400).json({ success: false, msg: "Something went wrong" })
+}
 
-module.exports = { addNewTodo }
+// ----------------------------------- DELETE TODOS -----------------------
+const deleteTodo = async (req, res) => {
+    try {
+        const id = req.body;
+        const deleteTodo = await TodoSchema.findByIdAndDelete(id?.id);
+        console.log("delete todo", deleteTodo);
+        if (deleteTodo) {
+            return res.status(200).json({ success: true, msg: "Delete successfully!" })
+        }
+        return res.status(400).json({ success: false, msg: "Something went wrong!" });
+    } catch (error) {
+        console.log("error is ", error);
+    }
+}
+
+
+
+
+module.exports = { addNewTodo, updateTodos, deleteTodo }

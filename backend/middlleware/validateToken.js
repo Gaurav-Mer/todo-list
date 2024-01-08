@@ -3,7 +3,7 @@ const extrackDataFromToken = require("../commonFunc/getToken.js")
 
 
 const validateToken = async (req, res, next) => {
-    const token = await req.cookies.jwt;
+    const token = await req.cookies.DO_NOT_SHARE;
     try {
         const respData = await extrackDataFromToken(token);
         if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {

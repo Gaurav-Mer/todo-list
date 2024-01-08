@@ -62,6 +62,7 @@ export default function Login() {
         credentials: "include", // Include credentials for cross-origin requests
       });
       const jsonData = await response.json();
+      setErrorData(jsonData?.msg);
 
       if (response?.status !== 200) {
         setLoader(false);

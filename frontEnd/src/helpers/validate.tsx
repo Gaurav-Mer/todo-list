@@ -57,3 +57,24 @@ export function returnDueDate() {
 
   return formattedDateTime;
 }
+
+export function convertTo12HourFormat(time24: string) {
+  // Parse the input time string into a Date object
+  const timeParts = time24.split(":");
+  const hours = parseInt(timeParts[0], 10);
+  const minutes = parseInt(timeParts[1], 10);
+
+  // Create a Date object with a fixed date and the provided time
+  const date = new Date(2000, 0, 1, hours, minutes);
+
+  // Format the time in 12-hour format
+  const options: any = { hour: "numeric", minute: "numeric", hour12: true };
+  const time12 = date.toLocaleTimeString("en-US", options);
+
+  return time12;
+}
+
+// Example usage:
+const time24Format = "15:25";
+const time12Format = convertTo12HourFormat(time24Format);
+console.log(time12Format); // Output: "3:25 PM"

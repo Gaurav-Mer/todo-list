@@ -1,7 +1,7 @@
 const { UserModel } = require("../models/user");
 let bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const extractDataFromToken = require("../commonFunc/getToken")
+const extractDataFromToken = require("../commonFunc/getToken");
 
 const SECRET_KEY = "kUCHbji21@8*2dd"
 
@@ -10,7 +10,7 @@ const signUp = async (req, res) => {
     const { name, email, password, avatar } = req.body;
     const isAlready = await UserModel.findOne({ email });
     if (isAlready) {
-        return res.status(400).json({ msg: "EMAIL ALREADY EXIST" })
+        return res.status(400).json({ msg: { email: "EMAIL ALREADY EXIST" } })
     }
 
     let salt = bcrypt.genSaltSync(10);
@@ -33,7 +33,6 @@ const signUp = async (req, res) => {
     if (errorData) {
         return res.status(400).json({ msg: errorData })
     }
-    console.log("error data", errorData);
     //bcrypt password here
     const data = await UserModel.create(userData);
     //jwt create here and set in cookie for httpOnly
@@ -50,19 +49,19 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const isAlready = await UserModel.findOne({ email });
     if (!isAlready || isAlready === null) {
-        return res.status(400).json({ msg: "No user Found" })
+        return res.status(400).json({ msg: { email: "No user Found" } })
     }
 
     ///valdiate password here :-
     const passMatch = await bcrypt.compare(password, isAlready.password);
     if (!passMatch) {
-        res.status(400).json({ msg: "Invalid Password" })
+        res.status(400).json({ msg: { password: "Invalid Password" } })
     } else {
-        const token = jwt.sign({ id: isAlready?._id, name: isAlready?.name, email: isAlready?.email }, SECRET_KEY, { expiresIn: '1h' });
+        const token = jwt.sign({ id: isAlready?._id, name: isAlready?.name, email: isAlready?.email, avatar: isAlready?.avatar ? isAlready?.avatar : "" }, SECRET_KEY, { expiresIn: '7d' });
 
         // Set the JWT in an HttpOnly cookie
-        const oneHourFromNow = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour in milliseconds
-        res.cookie('jwt', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
+        const oneHourFromNow = new Date(Date.now() + 7 * 60 * 60 * 1000); // 1 hour in milliseconds
+        res.cookie('DO_NOT_SHARE', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
         let userData = {};
         if (token) {
             const respData = await extractDataFromToken(token);
@@ -89,5 +88,69 @@ const validateData = (data) => {
 }
 
 
-module.exports = { signUp, testing, login }
+const logout = async (req, res) => {
+    const resp = await res.cookie("DO_NOT_SHARE", "", {
+        httpOnly: true,
+        expires: new Date(0),
+    });
+    console.log("remove cookie ", resp);
+    res.status(200).json({ success: true });
+}
+
+// --------------------- UPLAOD USER PROFILE --------------------------
+const uploadProfileToDb = async (req, res) => {
+    try {
+        //here i am getting the id of the profile so that i can add the image to that location in DB
+        const { id } = req.body;
+        console.log("req file ", req.file, id);
+        const avatarData = {
+            data: req.file.filename,
+            contentType: req.file.mimetype,
+            path: req.file.path
+        }
+        if (id) {
+            const updateData = await UserModel.findByIdAndUpdate(id, { avatar: avatarData }, { new: true });
+            const userData = await UserModel.findById(id);
+
+            //updating token
+            let updatedUserData = {};
+            if (userData) {
+                //destroying the prev token
+                const { DO_NOT_SHARE } = req.cookies;
+                if (DO_NOT_SHARE) {
+                    const destoryPrevToken = jwt.decode(DO_NOT_SHARE);
+                    console.log("destoryPrevToken", destoryPrevToken);
+                    if (destoryPrevToken) {
+
+                        //generating new token
+                        const token = jwt.sign({ id: userData?._id, name: userData?.name, email: userData?.email, avatar: avatarData }, SECRET_KEY, { expiresIn: '7d' });
+
+                        // Set the JWT in an HttpOnly cookie
+                        const oneHourFromNow = new Date(Date.now() + 7 * 60 * 60 * 1000); // 7 hour in milliseconds
+                        res.cookie('DO_NOT_SHARE', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
+                        if (token) {
+                            const respData = await extractDataFromToken(token);
+                            if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
+                                updatedUserData = respData?.data;
+                            }
+                        }
+
+                    }
+                }
+            }
+            console.log("modified data -->", updatedUserData);
+            if (updateData) {
+                return res.status(200).json({ success: true, msg: "Avatar uploaded successfully!", rData: updatedUserData })
+            }
+            return res.status(402).json({ msg: "No data found!" })
+        }
+        res.status(403).json({ success: false, msg: "Something went wrong!" })
+
+    } catch (error) {
+        res.status(400).json({ msg: `Something went wrong! ${error}` })
+    }
+}
+
+
+module.exports = { signUp, testing, login, logout, uploadProfileToDb }
 

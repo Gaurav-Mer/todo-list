@@ -7,7 +7,6 @@ let url = `mongodb+srv://gouravmer22:71ur1vmer@cluster0.pbqr3pl.mongodb.net/todo
 
 const connectDb = async () => {
     try {
-        console.log("gaurav")
         await mongoose.connect(url);
         console.log("db connected")
 

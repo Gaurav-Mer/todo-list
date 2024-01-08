@@ -6,13 +6,13 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface TodoState {
   userData: Record<string, any>; // Adjust the type based on the actual structure of userData
-  redirect: boolean;
+  redirect: any;
 }
 
 //initial value
 const initalValue: TodoState = {
   userData: {},
-  redirect: false,
+  redirect: -1,
 };
 
 const todoSlice = createSlice({

@@ -8,7 +8,8 @@ const todoScheme = new mongoose.Schema({
     dueTime: { type: String, required: true },
     level: { type: String },
     associateWith: { type: Array },
-    createdAt: { type: Number }
+    createdAt: { type: Number },
+    avatar: { type: String },
 });
 
 const TodoSchema = mongoose.model('TodoSchema', todoScheme);

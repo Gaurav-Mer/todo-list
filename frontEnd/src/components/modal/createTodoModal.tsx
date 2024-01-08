@@ -1,12 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { taskType } from "../../helpers/constant";
+import { useSelector } from "react-redux";
+import { RootState } from "../../reduxConfig/store";
 
 interface Props {
   onClose: any;
   show: any; // Define the type for onClick
+  isEdit?: boolean;
+  editData?: Record<any, any>;
+  isCompleted?: boolean;
+  setTodoList?: React.Dispatch<React.SetStateAction<any>>;
 }
-const CreateTodoModal: React.FC<Props> = ({ onClose, show }) => {
+const CreateTodoModal: React.FC<Props> = ({
+  onClose,
+  show,
+  isEdit = false,
+  editData = {},
+  isCompleted = false,
+  setTodoList,
+}) => {
+  const userData = useSelector((state: RootState) => state?.userData);
+  const params = new URLSearchParams(location.search);
+  const tType = params.get("tType");
+  type AssoType = Record<any, any>;
   interface TodoDate {
     title: string;
     assignTo: string;
@@ -14,14 +31,16 @@ const CreateTodoModal: React.FC<Props> = ({ onClose, show }) => {
     dueTime: string;
     level: string;
     description: string;
+    associateWith: AssoType[];
   }
   const [newTodo, setNewTodo] = useState<TodoDate>({
     title: "",
     assignTo: "self",
     dueDate: "",
     dueTime: "",
-    level: "new",
+    level: "New",
     description: "",
+    associateWith: [],
   });
 
   type Error = Record<string, string>;
@@ -59,8 +78,21 @@ const CreateTodoModal: React.FC<Props> = ({ onClose, show }) => {
 
   const storeDataInDb = async () => {
     const dataToBeSend = JSON.parse(JSON.stringify(newTodo));
+    if (!isEdit) {
+      dataToBeSend.associateWith.push({
+        email: userData?.email,
+        role: "admin",
+      });
+    }
+    //adding id for updating
+    if (isEdit) {
+      dataToBeSend.id = editData?._id;
+    }
     try {
-      const response = await fetch("http://localhost:3001/api/createTodo", {
+      let url = isEdit
+        ? "http://localhost:3001/api/createTodo/update"
+        : "http://localhost:3001/api/createTodo";
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,6 +103,44 @@ const CreateTodoModal: React.FC<Props> = ({ onClose, show }) => {
       if (response?.status !== 200) {
         setLoader(false);
       } else {
+        if (
+          !isEdit &&
+          setTodoList &&
+          (!tType ||
+            (tType &&
+              tType?.toLowerCase() === dataToBeSend?.level?.toLowerCase()))
+        ) {
+          setTodoList((prev: Record<any, any>[]) => [dataToBeSend, ...prev]);
+        } else if (isEdit && setTodoList) {
+          setTodoList((prev: Record<any, any>[]) => {
+            let obj = [...prev];
+            const cIndex = obj.findIndex((data) => data?._id === editData?._id);
+            if (cIndex >= 0) {
+              if (!tType) {
+                obj[cIndex] = {
+                  ...dataToBeSend,
+                  _id: editData?._id,
+                  id: editData?._id,
+                };
+              } else {
+                if (
+                  tType &&
+                  tType?.toLowerCase() === dataToBeSend?.level?.toLowerCase()
+                ) {
+                  obj[cIndex] = {
+                    ...dataToBeSend,
+                    _id: editData?._id,
+                    id: editData?._id,
+                  };
+                } else {
+                  //   delete obj[cIndex];
+                  obj.splice(cIndex, 1);
+                }
+              }
+            }
+            return obj;
+          });
+        }
         onClose();
       }
     } catch (error) {
@@ -107,6 +177,22 @@ const CreateTodoModal: React.FC<Props> = ({ onClose, show }) => {
     setNewTodo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  //handle data for the edit TODO:
+  useEffect(() => {
+    if (isEdit) {
+      let eData = {
+        title: editData?.title,
+        assignTo: editData?.assignTo,
+        dueDate: editData?.dueDate,
+        dueTime: editData?.dueTime,
+        level: isCompleted ? "Completed" : editData?.level,
+        description: editData?.description,
+        associateWith: editData?.associateWith,
+      };
+      setNewTodo(eData);
+    }
+  }, [isEdit]);
+
   return (
     <>
       <Modal
@@ -124,10 +210,11 @@ const CreateTodoModal: React.FC<Props> = ({ onClose, show }) => {
           </Modal.Title>
           <i
             onClick={onClose}
+            style={{ cursor: "pointer" }}
             className="fa-solid fa-xmark fa-xl text-white"
           ></i>
         </Modal.Header>
-        <Modal.Body className="bg-main">
+        <Modal.Body>
           <div className="row g-3">
             <div className="col-md-6">
               <label htmlFor="inputEmail4" className="form-label">
