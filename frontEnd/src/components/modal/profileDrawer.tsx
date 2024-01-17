@@ -33,7 +33,10 @@ const ProfileDrawer: React.FC<OuterFace> = ({
       const formData = new FormData();
       formData.append("avatar", userAvatar?.data);
       formData.append("id", userData?.id);
-      console.log("USER DATAI s", userData, userAvatar?.data);
+      formData.append(
+        "image_id",
+        userData?.avatar ? userData?.avatar?.path : ""
+      );
 
       const response = await fetch(`http://localhost:3001/api/uploadAvatar`, {
         method: "POST",
@@ -42,6 +45,8 @@ const ProfileDrawer: React.FC<OuterFace> = ({
       if (response?.status === 200) {
         //update the avatar in the context :-
         const jsonnData = await response.json();
+        console.log("json datais ", jsonnData);
+
         const respData = jsonnData?.rData;
         dispatch(setUserData({ tokenData: respData }));
       }

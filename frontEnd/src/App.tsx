@@ -29,15 +29,14 @@ const AppRouter: React.FC = () => {
         if (jsonData?.hasOwnProperty("rData")) {
           if (jsonData?.rData?.id) {
             const profileData = await fetch(
-              "http://localhost:3001/api/fetchProfileData"
+              `http://localhost:3001/api/fetchProfileData?id=${jsonData?.rData?.id}`
             );
             if (profileData) {
-              return dispatch(setUserData({ tokenData: jsonData?.rData }));
+              const rData = await profileData.json();
+              console.log("USER DATA IS", rData?.rData);
 
-              const respData = await response.json();
-              if (respData?.status === 200) {
-                console.log("resp data is ->>>", respData);
-                dispatch(setUserData({ tokenData: jsonData?.rData }));
+              if (profileData?.status === 200) {
+                return dispatch(setUserData({ tokenData: rData?.rData }));
               }
             }
           }

@@ -6,7 +6,6 @@ import ProfileDrawer from "./modal/profileDrawer";
 
 type OverAllSt = Record<string, string | any>;
 const Navbar: React.FC<OverAllSt> = ({ userData }) => {
-  const dispatch = useDispatch();
   const [loader, setLoader] = useState<boolean>(false);
   const [editProfile, setEditProfile] = useState({ open: false });
 

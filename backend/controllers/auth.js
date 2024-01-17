@@ -2,6 +2,7 @@ const { UserModel } = require("../models/user");
 let bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const extractDataFromToken = require("../commonFunc/getToken");
+const fs = require("fs")
 
 const SECRET_KEY = "kUCHbji21@8*2dd"
 
@@ -101,46 +102,30 @@ const logout = async (req, res) => {
 const uploadProfileToDb = async (req, res) => {
     try {
         //here i am getting the id of the profile so that i can add the image to that location in DB
-        const { id } = req.body;
+        const { id, image_id } = req.body;
+        console.log("image id is", image_id);
         console.log("req file ", req.file, id);
         const avatarData = {
             data: req.file.filename,
             contentType: req.file.mimetype,
             path: req.file.path
         }
+        //unlinking the image if that image already in db
+        if (image_id) {
+            try {
+                if (fs.existsSync(image_id)) {
+                    fs.unlinkSync(image_id);
+                }
+            } catch (error) {
+                console.log("ERROR WHILE DELETING IMAGE ");
+            }
+        }
+
         if (id) {
             const updateData = await UserModel.findByIdAndUpdate(id, { avatar: avatarData }, { new: true });
-            const userData = await UserModel.findById(id);
-
-            //updating token
-            let updatedUserData = {};
-            if (userData) {
-                //destroying the prev token
-                const { DO_NOT_SHARE } = req.cookies;
-                if (DO_NOT_SHARE) {
-                    const destoryPrevToken = jwt.decode(DO_NOT_SHARE);
-                    console.log("destoryPrevToken", destoryPrevToken);
-                    if (destoryPrevToken) {
-
-                        //generating new token
-                        const token = jwt.sign({ id: userData?._id, name: userData?.name, email: userData?.email, avatar: avatarData }, SECRET_KEY, { expiresIn: '7d' });
-
-                        // Set the JWT in an HttpOnly cookie
-                        const oneHourFromNow = new Date(Date.now() + 7 * 60 * 60 * 1000); // 7 hour in milliseconds
-                        res.cookie('DO_NOT_SHARE', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
-                        if (token) {
-                            const respData = await extractDataFromToken(token);
-                            if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
-                                updatedUserData = respData?.data;
-                            }
-                        }
-
-                    }
-                }
-            }
-            console.log("modified data -->", updatedUserData);
+            console.log("update data is ", updateData);
             if (updateData) {
-                return res.status(200).json({ success: true, msg: "Avatar uploaded successfully!", rData: updatedUserData })
+                return res.status(200).json({ success: true, msg: "Avatar uploaded successfully!", rData: updateData })
             }
             return res.status(402).json({ msg: "No data found!" })
         }
