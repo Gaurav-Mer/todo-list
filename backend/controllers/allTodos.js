@@ -4,7 +4,7 @@ const { TodoSchema } = require("../models/todo");
 
 const getAllTodos = async (req, res) => {
     const { DO_NOT_SHARE } = req.cookies;
-    const { filter } = req.query;
+    const { filter, todoType } = req.query;
     if (DO_NOT_SHARE) {
         const respData = await extractDataFromToken(DO_NOT_SHARE);
         if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
@@ -12,6 +12,11 @@ const getAllTodos = async (req, res) => {
                 const queries = { 'associateWith.email': respData?.data?.email };
                 if (filter) {
                     queries["level"] = filter
+                }
+                
+                //todoType = all todo with TEAM
+                if (todoType) {
+                    queries["assignTo"] = todoType
                 }
 
                 const allData = await TodoSchema.find(queries);

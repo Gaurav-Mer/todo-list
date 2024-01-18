@@ -11,7 +11,6 @@ const storage = multer.diskStorage({
         cb(null, './avatar')
     },
     filename: function (req, file, cb) {
-        console.log("file is ====>", file);
         cb(null, Date.now() + '-' + file.originalname);
     }
 })

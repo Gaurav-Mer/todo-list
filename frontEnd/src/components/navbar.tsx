@@ -31,7 +31,6 @@ const Navbar: React.FC<OverAllSt> = ({ userData }) => {
       console.log("error is =>", error);
     }
   };
-  console.log("avatar", userData);
 
   return (
     <nav className="navbar navbar-expand-lg bg-primary bg-gradient  text-white">

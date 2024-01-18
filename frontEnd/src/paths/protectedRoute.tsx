@@ -21,7 +21,10 @@ const ProtectedRoute: React.FC<OverAllSt> = ({
     return <Navigate to={"/"} />;
   }
   //IF non  login
-  if (pageType === "home" && (!userData || !userData.email)) {
+  if (
+    (pageType === "home" || pageType === "team") &&
+    (!userData || !userData.email)
+  ) {
     return <Navigate to={"/login"} />;
   }
 

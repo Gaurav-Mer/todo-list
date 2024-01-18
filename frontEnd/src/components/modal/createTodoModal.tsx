@@ -21,6 +21,7 @@ const CreateTodoModal: React.FC<Props> = ({
   setTodoList,
 }) => {
   const userData = useSelector((state: RootState) => state?.userData);
+
   const params = new URLSearchParams(location.search);
   const tType = params.get("tType");
   type AssoType = Record<any, any>;
@@ -40,7 +41,7 @@ const CreateTodoModal: React.FC<Props> = ({
     dueTime: "",
     level: "New",
     description: "",
-    associateWith: [],
+    associateWith: [{ email: "", role: "user" }],
   });
 
   type Error = Record<string, string>;
@@ -177,6 +178,28 @@ const CreateTodoModal: React.FC<Props> = ({
     setNewTodo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleUser = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    console.log("handleCHAnge", e.target.name, index);
+  };
+
+  const addNewUser = (index: any, type: any) => {
+    console.log("index is ", index);
+
+    setNewTodo((prev) => {
+      let obj = { ...prev };
+      if (type === "desc") {
+        //removing the element
+        obj.associateWith.splice(index, 1);
+      } else {
+        obj.associateWith.push({ email: "", role: "user" });
+      }
+      return obj;
+    });
+  };
+
   //handle data for the edit TODO:
   useEffect(() => {
     if (isEdit) {
@@ -250,7 +273,11 @@ const CreateTodoModal: React.FC<Props> = ({
                 }`}
               >
                 <option selected>Self </option>
-                <option disabled value={"team"}>
+                <option
+                  disabled={
+                    userData?.email === "gouravmer22@gmail.com" ? false : true
+                  }
+                >
                   Team
                 </option>
               </select>{" "}
@@ -260,6 +287,65 @@ const CreateTodoModal: React.FC<Props> = ({
                 ""
               )}
             </div>
+            {newTodo?.associateWith?.map((item, index) => {
+              return (
+                <>
+                  <div className="col-6 bg-light border-2 pb-2">
+                    <input
+                      name="email"
+                      id="inputStateEmail"
+                      placeholder="Enter email"
+                      onChange={(e) => handleUser(e, 1)}
+                      value={newTodo?.description}
+                      className={`form-control  ${
+                        errorList?.description ? "is-invalid " : ""
+                      }`}
+                    />
+                    {errorList?.description ? (
+                      <div className="text-danger">
+                        {errorList?.description}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                  <div className="col-4  bg-light border-2 pb-3  ">
+                    <select
+                      onChange={handleSelectChange}
+                      value={newTodo?.level}
+                      id="inputStateRole"
+                      name="role"
+                      className={`form-control ${
+                        errorList?.level ? "is-invalid " : ""
+                      }`}
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="user">User</option>
+                    </select>
+                  </div>
+
+                  <div className="col-1 ms-4">
+                    {newTodo?.associateWith?.length - 1 === index ||
+                    newTodo?.associateWith?.length === (isEdit ? 2 : 1) ? (
+                      <Button
+                        size="sm"
+                        onClick={() => addNewUser(index, "inc")}
+                      >
+                        <i className="fa-solid fa-plus"></i>
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => addNewUser(index, "desc")}
+                      >
+                        <i className="fa-solid fa-minus"></i>
+                      </Button>
+                    )}
+                  </div>
+                </>
+              );
+            })}
             <div className="col-6">
               <label htmlFor="inputAddress" className="form-label">
                 Due Date

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserData, toggleRedirect } from "./reduxConfig/slices/todoSlices";
 import { RootState } from "./reduxConfig/store";
 import ProtectedRoute from "./paths/protectedRoute";
+import Team from "./paths/team";
 
 const AppRouter: React.FC = () => {
   const store = useSelector((state: RootState) => state);
@@ -33,7 +34,6 @@ const AppRouter: React.FC = () => {
             );
             if (profileData) {
               const rData = await profileData.json();
-              console.log("USER DATA IS", rData?.rData);
 
               if (profileData?.status === 200) {
                 return dispatch(setUserData({ tokenData: rData?.rData }));
@@ -66,7 +66,6 @@ const AppRouter: React.FC = () => {
     }, 500);
     return () => clearTimeout(r);
   }, []);
-  // console.log("gaurav mer is her e");
 
   return (
     <>
@@ -110,6 +109,14 @@ const AppRouter: React.FC = () => {
               }
             />
             <Route path="/test" element={<Testing />} />
+            <Route
+              path="/team"
+              element={
+                <ProtectedRoute userData={store?.userData} pageType="team">
+                  <Team userData={store?.userData} />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       ) : (

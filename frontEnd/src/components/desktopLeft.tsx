@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { taskType } from "../helpers/constant";
 import styles from "../register.module.css";
 import CreateTodoModal from "./modal/createTodoModal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 
 interface StateProps {
@@ -65,7 +65,6 @@ const DesktopLeft: React.FC<StateProps> = ({ setTodoList, userData }) => {
     }
   };
 
-  console.log("user avaar", userData);
   return (
     <div className={`bg-white vh-100 p-4 `}>
       <div
@@ -93,19 +92,29 @@ const DesktopLeft: React.FC<StateProps> = ({ setTodoList, userData }) => {
       </button>
       <ul className={styles.nested}>
         <li
+          onClick={() => navigator("/")}
           style={{
-            color: !aType ? "#0d6efd" : "",
-            fontWeight: !aType ? "500" : "",
-            background: !aType ? "#f2f2f2" : "",
-            padding: !aType ? 5 : "",
-            borderRadius: !aType ? 5 : "",
+            color: window.location.pathname === "/" ? "#0d6efd" : "",
+            fontWeight: window.location.pathname === "/" ? "500" : "",
+            background: window.location.pathname === "/" ? "#f2f2f2" : "",
+            padding: window.location.pathname === "/" ? 5 : "",
+            borderRadius: window.location.pathname === "/" ? 5 : "",
           }}
         >
           <i className="fa-solid   fa-user fa-sm"></i> self
         </li>
-        <li>
+        <li
+          onClick={() => navigator("/team")}
+          style={{
+            color: window.location.pathname === "/team" ? "#0d6efd" : "",
+            fontWeight: window.location.pathname === "/team" ? "500" : "",
+            background: window.location.pathname === "/team" ? "#f2f2f2" : "",
+            padding: window.location.pathname === "/team" ? 5 : "",
+            borderRadius: window.location.pathname === "/team" ? 5 : "",
+          }}
+        >
           <i
-            className="fa-solid fa-user-group text-secondary me-1"
+            className="fa-solid fa-user-group  me-1"
             style={{ fontSize: 12 }}
           ></i>
           Team <i className="fa-solid fa-lock fa-sm ms-3"></i>

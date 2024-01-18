@@ -45,10 +45,9 @@ const ProfileDrawer: React.FC<OuterFace> = ({
       if (response?.status === 200) {
         //update the avatar in the context :-
         const jsonnData = await response.json();
-        console.log("json datais ", jsonnData);
-
         const respData = jsonnData?.rData;
         dispatch(setUserData({ tokenData: respData }));
+        onClose();
       }
     } catch (error) {
       console.error("Error during file upload:", error);

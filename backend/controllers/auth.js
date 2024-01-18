@@ -104,7 +104,6 @@ const uploadProfileToDb = async (req, res) => {
         //here i am getting the id of the profile so that i can add the image to that location in DB
         const { id, image_id } = req.body;
         console.log("image id is", image_id);
-        console.log("req file ", req.file, id);
         const avatarData = {
             data: req.file.filename,
             contentType: req.file.mimetype,
@@ -123,7 +122,6 @@ const uploadProfileToDb = async (req, res) => {
 
         if (id) {
             const updateData = await UserModel.findByIdAndUpdate(id, { avatar: avatarData }, { new: true });
-            console.log("update data is ", updateData);
             if (updateData) {
                 return res.status(200).json({ success: true, msg: "Avatar uploaded successfully!", rData: updateData })
             }
