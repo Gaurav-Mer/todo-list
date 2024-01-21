@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { taskType } from "../../helpers/constant";
+import { emailRegex, taskType } from "../../helpers/constant";
 import { useSelector } from "react-redux";
 import { RootState } from "../../reduxConfig/store";
+import { ToastContainer, toast } from "react-toastify";
+import AddMore from "../addMore";
 
 interface Props {
   onClose: any;
@@ -41,7 +43,12 @@ const CreateTodoModal: React.FC<Props> = ({
     dueTime: "",
     level: "New",
     description: "",
-    associateWith: [{ email: "", role: "user" }],
+    associateWith: [
+      {
+        email: userData?.email,
+        role: "admin",
+      },
+    ],
   });
 
   type Error = Record<string, string>;
@@ -79,16 +86,23 @@ const CreateTodoModal: React.FC<Props> = ({
 
   const storeDataInDb = async () => {
     const dataToBeSend = JSON.parse(JSON.stringify(newTodo));
-    if (!isEdit) {
-      dataToBeSend.associateWith.push({
-        email: userData?.email,
-        role: "admin",
-      });
-    }
+
+    // if (!isEdit) {
+    //   dataToBeSend.associateWith.push({
+    //     email: userData?.email,
+    //     role: "admin",
+    //   });
+    // }
     //adding id for updating
     if (isEdit) {
       dataToBeSend.id = editData?._id;
     }
+
+    // if user select type of self then only userData is set to assoicateUser no other user
+    if (dataToBeSend?.assignTo === "self") {
+      dataToBeSend.associateWith = [{ email: userData?.email, role: "admin" }];
+    }
+
     try {
       let url = isEdit
         ? "http://localhost:3001/api/createTodo/update"
@@ -103,7 +117,14 @@ const CreateTodoModal: React.FC<Props> = ({
       });
       if (response?.status !== 200) {
         setLoader(false);
-      } else {
+        toast.error("Something Went Wrong!");
+      } else if (
+        response?.status === 200 &&
+        ((window.location.pathname === "/" &&
+          dataToBeSend?.assignTo === "self") ||
+          (window.location.pathname === "/team" &&
+            dataToBeSend?.assignTo === "team"))
+      ) {
         if (
           !isEdit &&
           setTodoList &&
@@ -146,6 +167,7 @@ const CreateTodoModal: React.FC<Props> = ({
       }
     } catch (error) {
       console.log("error is =>", error);
+      toast.error("Something Went Wrong!");
       setLoader(false);
     }
   };
@@ -154,6 +176,13 @@ const CreateTodoModal: React.FC<Props> = ({
     //validate
     setLoader(true);
     const errors = validateData(newTodo);
+    //validating that useremail is entred or not
+    for (let i = 0; i < newTodo?.associateWith.length; i++) {
+      if (newTodo?.associateWith[i]?.email?.length < 1) {
+        toast.error("Email can not be empty");
+      }
+    }
+
     if (Object.keys(errors)?.length > 0) {
       setLoader(false);
       return setErrorList(errors);
@@ -170,32 +199,87 @@ const CreateTodoModal: React.FC<Props> = ({
     event
   ) => {
     const value = event.target.value;
-
-    setNewTodo((prev) => ({ ...prev, level: value }));
+    setNewTodo((prev) => ({ ...prev, [event.target.name]: value }));
   };
 
   const handleArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewTodo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleUser = (
-    e: React.ChangeEvent<HTMLInputElement>,
+  const handleSelectUser = (
+    e: React.ChangeEvent<HTMLSelectElement>,
     index: number
   ) => {
-    console.log("handleCHAnge", e.target.name, index);
-  };
-
-  const addNewUser = (index: any, type: any) => {
-    console.log("index is ", index);
-
     setNewTodo((prev) => {
       let obj = { ...prev };
-      if (type === "desc") {
-        //removing the element
-        obj.associateWith.splice(index, 1);
-      } else {
-        obj.associateWith.push({ email: "", role: "user" });
+      obj.associateWith[index]["role"] = e.target.value;
+      return obj;
+    });
+  };
+
+  const valiDateUserEmail = async (email: string) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/validateEmail", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+        //   credentials: "include", // Include credentials for cross-origin requests
+      });
+      const jsonData = await response.json();
+      if (!response || response?.status !== 200 || !jsonData?.success) {
+        toast.error(jsonData?.msg);
+        return false;
       }
+      return true;
+    } catch (error) {
+      toast.error("Something Went Wrong!");
+      return false;
+    }
+  };
+
+  const addNewUser = async (index: any, type: any) => {
+    // if click + => check that all its prev data are filled uf not show error
+    //if filled check its format then validateEmail
+
+    if (newTodo.associateWith[index].email?.length > 0) {
+      //validating the email format
+      if (!emailRegex.test(newTodo.associateWith[index]?.email)) {
+        return setErrorList({ email: index, msg: "Invalid email" });
+      }
+      //validate that the enter email is is db or not :-
+      const isValid =
+        type === "desc"
+          ? true
+          : await valiDateUserEmail(newTodo.associateWith[index]?.email);
+      if (isValid) {
+        setNewTodo((prev) => {
+          let obj = { ...prev };
+          if (type === "desc") {
+            //removing the element
+            obj.associateWith = obj.associateWith.filter((_, i) => i !== index);
+          } else if (obj?.associateWith?.length < 5) {
+            obj.associateWith = [
+              ...obj.associateWith,
+              { email: "", role: "user" },
+            ];
+          }
+          return obj;
+        });
+      }
+    } else if (type === "inc") {
+      setErrorList({ email: index, msg: "This field can not be empty" });
+    }
+  };
+
+  const handleChangeUser = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: any
+  ) => {
+    setNewTodo((prev) => {
+      let obj = { ...prev };
+      obj.associateWith[index][e.target.name] = e.target.value;
       return obj;
     });
   };
@@ -217,7 +301,7 @@ const CreateTodoModal: React.FC<Props> = ({
   }, [isEdit]);
 
   return (
-    <>
+    <div>
       <Modal
         show={show}
         size="lg"
@@ -260,20 +344,21 @@ const CreateTodoModal: React.FC<Props> = ({
               )}
             </div>
             <div className="col-md-6">
-              <label htmlFor="inputState" className="form-label">
+              <label htmlFor="inputState2" className="form-label">
                 Assign to
               </label>
               <select
-                //   onChange={handleChange}
+                onChange={handleSelectChange}
                 value={newTodo?.assignTo}
-                id="inputState"
-                name="assingTo"
+                id="inputState2"
+                name="assignTo"
                 className={`form-control ${
                   errorList?.assignTo ? "is-invalid " : ""
                 }`}
               >
-                <option selected>Self </option>
+                <option value="self">Self </option>
                 <option
+                  value="team"
                   disabled={
                     userData?.email === "gouravmer22@gmail.com" ? false : true
                   }
@@ -287,65 +372,15 @@ const CreateTodoModal: React.FC<Props> = ({
                 ""
               )}
             </div>
-            {newTodo?.associateWith?.map((item, index) => {
-              return (
-                <>
-                  <div className="col-6 bg-light border-2 pb-2">
-                    <input
-                      name="email"
-                      id="inputStateEmail"
-                      placeholder="Enter email"
-                      onChange={(e) => handleUser(e, 1)}
-                      value={newTodo?.description}
-                      className={`form-control  ${
-                        errorList?.description ? "is-invalid " : ""
-                      }`}
-                    />
-                    {errorList?.description ? (
-                      <div className="text-danger">
-                        {errorList?.description}
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                  <div className="col-4  bg-light border-2 pb-3  ">
-                    <select
-                      onChange={handleSelectChange}
-                      value={newTodo?.level}
-                      id="inputStateRole"
-                      name="role"
-                      className={`form-control ${
-                        errorList?.level ? "is-invalid " : ""
-                      }`}
-                    >
-                      <option value="admin">Admin</option>
-                      <option value="user">User</option>
-                    </select>
-                  </div>
-
-                  <div className="col-1 ms-4">
-                    {newTodo?.associateWith?.length - 1 === index ||
-                    newTodo?.associateWith?.length === (isEdit ? 2 : 1) ? (
-                      <Button
-                        size="sm"
-                        onClick={() => addNewUser(index, "inc")}
-                      >
-                        <i className="fa-solid fa-plus"></i>
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() => addNewUser(index, "desc")}
-                      >
-                        <i className="fa-solid fa-minus"></i>
-                      </Button>
-                    )}
-                  </div>
-                </>
-              );
-            })}
+            {newTodo?.assignTo === "team" && (
+              <AddMore
+                newTodo={newTodo}
+                setNewTodo={setNewTodo}
+                handleChangeUser={handleChangeUser}
+                userData={userData}
+                handleSelectUser={handleSelectUser}
+              />
+            )}
             <div className="col-6">
               <label htmlFor="inputAddress" className="form-label">
                 Due Date
@@ -447,11 +482,16 @@ const CreateTodoModal: React.FC<Props> = ({
               role="status"
             ></div>
           ) : (
-            <Button onClick={submitForm}>Add todo</Button>
+            <Button onClick={submitForm}>
+              {" "}
+              {isEdit ? "Edit todo" : "Add todo"}
+            </Button>
           )}
         </Modal.Footer>
       </Modal>
-    </>
+
+      <ToastContainer theme="colored" />
+    </div>
   );
 };
 

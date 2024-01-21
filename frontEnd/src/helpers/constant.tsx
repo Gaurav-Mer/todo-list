@@ -15,3 +15,5 @@ export const taskWithColor = {
   5: { name: "On Hold", color: "bg-secondary" },
   6: { name: "Cancel", color: "bg-danger" },
 };
+
+export const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;

@@ -13,11 +13,14 @@ const getAllTodos = async (req, res) => {
                 if (filter) {
                     queries["level"] = filter
                 }
-                
+
                 //todoType = all todo with TEAM
                 if (todoType) {
                     queries["assignTo"] = todoType
+                } else {
+                    queries["assignTo"] = "self"
                 }
+
 
                 const allData = await TodoSchema.find(queries);
                 if (allData) {

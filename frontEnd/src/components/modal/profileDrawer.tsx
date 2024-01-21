@@ -13,12 +13,7 @@ interface OuterFace {
 
 type AvatarIf = Record<any, any>;
 
-const ProfileDrawer: React.FC<OuterFace> = ({
-  onClose,
-  show,
-  isEdit,
-  userData,
-}) => {
+const ProfileDrawer: React.FC<OuterFace> = ({ onClose, show, userData }) => {
   const [loader, setLoader] = useState(false);
   const [userAvatar, setUserAvatar] = useState<AvatarIf>({
     data: null,
@@ -28,6 +23,7 @@ const ProfileDrawer: React.FC<OuterFace> = ({
   const dispatch = useDispatch();
 
   const submitForm = async (e: any) => {
+    setLoader(false);
     e.preventDefault();
     try {
       const formData = new FormData();
@@ -40,6 +36,7 @@ const ProfileDrawer: React.FC<OuterFace> = ({
 
       const response = await fetch(`http://localhost:3001/api/uploadAvatar`, {
         method: "POST",
+
         body: formData,
       });
       if (response?.status === 200) {

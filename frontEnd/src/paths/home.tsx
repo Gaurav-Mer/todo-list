@@ -13,7 +13,7 @@ const Home: React.FC<OverAllSt> = ({ userData }) => {
   const location = useLocation();
   const [loader, setLoader] = useState<any>(true);
 
-  const fetchAllTodos = async (type: any) => {
+  const fetchAllTodos = async (type: any, signal: any) => {
     try {
       let url = "http://localhost:3001/api/getTodos";
       if (type && type !== null) {
@@ -25,6 +25,8 @@ const Home: React.FC<OverAllSt> = ({ userData }) => {
           "content-type": "application/json",
         },
         credentials: "include", // Include credentials for cross-origin requests
+
+        signal,
       });
       if (response.status === 200) {
         const respData = await response.json();
@@ -43,10 +45,14 @@ const Home: React.FC<OverAllSt> = ({ userData }) => {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const params = new URLSearchParams(location.search);
     // const { pType } = Object.f1romEntries(params);
     const tType = params.get("tType");
-    fetchAllTodos(tType);
+    fetchAllTodos(tType, signal);
+    return () => controller.abort();
   }, [location?.search]);
 
   return (
@@ -61,7 +67,11 @@ const Home: React.FC<OverAllSt> = ({ userData }) => {
             {loader ? (
               <TodoLoader />
             ) : (
-              <RightSide setTodoList={setTodoList} todoList={todoList} userData={userData} />
+              <RightSide
+                setTodoList={setTodoList}
+                todoList={todoList}
+                userData={userData}
+              />
             )}
           </div>
         </div>

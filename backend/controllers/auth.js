@@ -8,7 +8,7 @@ const SECRET_KEY = "kUCHbji21@8*2dd"
 
 
 const signUp = async (req, res) => {
-    const { name, email, password, avatar } = req.body;
+    const { name, email, password } = req.body;
     const isAlready = await UserModel.findOne({ email });
     if (isAlready) {
         return res.status(400).json({ msg: { email: "EMAIL ALREADY EXIST" } })
@@ -23,7 +23,6 @@ const signUp = async (req, res) => {
         name,
         email,
         password: hashPassword,
-        avatar,
         u_id: `${new Date().getTime()}_${name}`,
         isActive: true,
         role: adminRole?.includes(email) ? "admin" : "user"
@@ -34,11 +33,22 @@ const signUp = async (req, res) => {
     if (errorData) {
         return res.status(400).json({ msg: errorData })
     }
-    //bcrypt password here
     const data = await UserModel.create(userData);
     //jwt create here and set in cookie for httpOnly
-
-    res.status(200).json({ msg: "user added successfully!" })
+    let tokenData = {};
+    if (data) {
+        // Set the JWT in an HttpOnly cookie
+        const token = jwt.sign({ id: data?._id, name: data?.name, email: data?.email, avatar: "" }, SECRET_KEY, { expiresIn: '7d' });
+        const oneHourFromNow = new Date(Date.now() + 7 * 60 * 60 * 1000); // 1 hour in milliseconds
+        res.cookie('DO_NOT_SHARE', token, { httpOnly: true, expires: oneHourFromNow, sameSite: 'None', secure: true });
+        if (token) {
+            const respData = await extractDataFromToken(token);
+            if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
+                tokenData = respData?.data;
+            }
+        }
+    }
+    res.status(200).json({ msg: "user added successfully!", token: "token", rData: tokenData })
 }
 
 const testing = async (req, res) => {
@@ -94,7 +104,6 @@ const logout = async (req, res) => {
         httpOnly: true,
         expires: new Date(0),
     });
-    console.log("remove cookie ", resp);
     res.status(200).json({ success: true });
 }
 
@@ -103,7 +112,6 @@ const uploadProfileToDb = async (req, res) => {
     try {
         //here i am getting the id of the profile so that i can add the image to that location in DB
         const { id, image_id } = req.body;
-        console.log("image id is", image_id);
         const avatarData = {
             data: req.file.filename,
             contentType: req.file.mimetype,

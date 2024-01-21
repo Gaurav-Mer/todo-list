@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "../register.module.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUserData, toggleRedirect } from "../reduxConfig/slices/todoSlices";
+import { ToastContainer, toast } from "react-toastify";
+import { emailRegex } from "../helpers/constant";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,6 +47,8 @@ export default function Login() {
       error["email"] = "Please Enter email";
     } else if (data?.email?.length > 40) {
       error["email"] = "Maximum 40 length allowed";
+    } else if (!emailRegex.test(data?.email)) {
+      error["email"] = "Invalid Email";
     }
 
     return error;
@@ -72,12 +76,14 @@ export default function Login() {
           Object.keys(jsonData?.rData)?.length > 0
         ) {
           dispatch(setUserData({ tokenData: jsonData?.rData }));
+          toast.success("Login Successfully!");
         }
         dispatch(toggleRedirect(false));
         navigate("/");
       }
     } catch (error) {
       console.log("error is =>", error);
+      toast.error("Something Went Wrong!");
       setLoader(false);
     }
   };
@@ -221,6 +227,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

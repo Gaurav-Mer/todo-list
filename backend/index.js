@@ -5,7 +5,7 @@ const server = http.createServer(app);
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
 app.use('/avatar', express.static('avatar'));
-
+app.use(express.urlencoded({ extended: true }));
 
 const { connectDb } = require("./db.js");
 const registerForm = require("./routes/register.js");
@@ -16,6 +16,7 @@ const getTodos = require("./routes/todoList.js");
 const logoutRoute = require("./routes/logout.js");
 const uploadUserAvatar = require("./routes/uploadAvatar.js");
 const userData = require("./routes/fetchUserData.js");
+const handleUserMail = require("./routes/validateEmail.js")
 
 // app.use(cors());
 // app.use(cors({ credentials: true, origin: 'http://127.0.0.1:5173' }));
@@ -25,7 +26,6 @@ app.use(cookieParser());
 
 
 const port = 3001;
-
 app.use("/register", registerForm);
 app.use("/login", loginRoute);
 app.use("/api/createTodo", addTodo);
@@ -34,7 +34,8 @@ app.use("/api/getTodos", getTodos);
 app.use("/api/logout", logoutRoute);
 //special route for 
 app.use("/api/uploadAvatar", uploadUserAvatar);
-app.use("/api/fetchProfileData", userData)
+app.use("/api/fetchProfileData", userData);
+app.use("/api/validateEmail", handleUserMail);
 
 
 connectDb().then(() => {

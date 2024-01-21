@@ -2,19 +2,17 @@ import React, { useState } from "react";
 import { taskType } from "../helpers/constant";
 import styles from "../register.module.css";
 import CreateTodoModal from "./modal/createTodoModal";
-import { Link, useNavigate } from "react-router-dom";
-import imageCompression from "browser-image-compression";
+import { useNavigate } from "react-router-dom";
 
 interface StateProps {
   setTodoList: React.Dispatch<React.SetStateAction<any>>;
   userData: Record<any, any>;
 }
 
-const DesktopLeft: React.FC<StateProps> = ({ setTodoList, userData }) => {
+const DesktopLeft: React.FC<StateProps> = ({ setTodoList }) => {
   const navigator = useNavigate();
   const queryParameters = new URLSearchParams(window.location.search);
   const tType = queryParameters.get("tType");
-  const aType = queryParameters.get("aType");
 
   //state
   const [modalShow, setModalShow] = useState(false);
@@ -27,43 +25,11 @@ const DesktopLeft: React.FC<StateProps> = ({ setTodoList, userData }) => {
     if (type) {
       navigator(`?tType=${type}`);
     } else {
-      navigator("/");
+      const pathName = window.location.pathname;
+      navigator(pathName);
     }
   };
 
-  const [userAvatar, setUserAvatar] = useState<any>(null);
-  const sumitData = async (e: any) => {
-    e.preventDefault();
-    try {
-      const formData = new FormData();
-      formData.append("avatar", userAvatar);
-      formData.append("id", "658e76f09ea8ef1ae7259dd1");
-      const response = await fetch(`http://localhost:3001/api/uploadAvatar`, {
-        method: "POST",
-
-        body: formData,
-      });
-    } catch (error) {
-      console.error("Error during file upload:", error);
-    }
-  };
-
-  const handleImage = async (file: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = file?.target?.files ? file.target.files[0] : null;
-
-    try {
-      const options = {
-        maxSizeMB: 0.5,
-        useWebWorker: true,
-      };
-      if (selectedFile) {
-        const compressedImage = await imageCompression(selectedFile, options);
-        setUserAvatar(compressedImage);
-      }
-    } catch (error) {
-      console.error("Error compressing image:", error);
-    }
-  };
 
   return (
     <div className={`bg-white vh-100 p-4 `}>

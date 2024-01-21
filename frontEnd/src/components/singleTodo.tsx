@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { convertTo12HourFormat, returnDueDate } from "../helpers/validate";
+import { convertTo12HourFormat } from "../helpers/validate";
 import CreateTodoModal from "./modal/createTodoModal";
 
 interface OverAllSt {
@@ -130,10 +130,17 @@ const SingleTodo: React.FC<OverAllSt> = ({ todo, setTodoList }) => {
                   <span className="mt-1 fw-bold ">Assing to</span>
                 </div>
                 <div
-                  className="d-flex  fw-bold  text-secondary"
+                  className="d-flex  fw-bold  text-secondary position-relative "
                   style={{ fontSize: 13 }}
                 >
                   {todo?.assignTo?.toUpperCase()}
+                  {todo?.assignTo === "team" ? (
+                    <span className="ms-1  badge rounded bg-secondary mt-1">
+                      {todo?.associateWith?.length}
+                    </span>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
             </div>

@@ -1,35 +1,56 @@
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { Suspense, useRef, useState } from "react";
+import { useDebounce } from "../customHooks";
+const SuggestionData = React.lazy(() => import("../components/suggestionData"));
+
+// const fetchData = fetch("http://localhost:3001/api/getTodos");
 
 const Testing = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const useSuggestionBox: any = useRef(null);
+  const [value, setValue] = useState("");
+  const [showBox, setShowBox] = useState(false);
 
-  const handleButtonClick = () => {
-    // Add parameters to the query string
-    const newParams = { type: "first", category: "example" };
-    navigate({
-      pathname: location.pathname,
-      search: new URLSearchParams(newParams).toString(),
-    });
+  const handleChange = (e: any) => {
+    setValue(e.target.value);
+    if (!e.target.value) {
+      setShowBox(false);
+    } else {
+      setShowBox(true);
+    }
   };
 
-  // Simulate API call when the component mounts or when parameters change
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    fetchData(params);
-  }, [location.search]);
-
-  const fetchData = (params: any) => {
-    // Simulate an API call using the parameters
-    console.log(`API Call with parameters:`, Object.fromEntries(params));
+  const clickOnItem = (val: any) => {
+    setValue(val);
+    setShowBox(false);
   };
+
+const debounceData = useDebounce(value);
 
   return (
     <div>
-      <h1>Home Page</h1>
-      <button onClick={handleButtonClick}>Add Parameters</button>
       {/* <Outlet /> */}
+      <div className="row mt-4 ms-4">
+        <div className="col-4">
+          <div className="row">
+            <input
+              type="text"
+              value={value}
+              onChange={handleChange}
+              className="form-control bg-body-secondary"
+              id="formGroupExampleInput"
+              placeholder="Example input placeholder"
+            />
+            {showBox  ?  
+            <Suspense fallback="LOADING...">
+              <SuggestionData
+                showBox={showBox}
+                useSuggestionBox={useSuggestionBox}
+                clickOnItem={clickOnItem}
+                debounceval={debounceData}
+              />
+            </Suspense>:""}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

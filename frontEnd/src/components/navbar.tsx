@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { toggleRedirect } from "../reduxConfig/slices/todoSlices";
 import ProfileDrawer from "./modal/profileDrawer";
 
 type OverAllSt = Record<string, string | any>;
