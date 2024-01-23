@@ -83,7 +83,7 @@ const CreateTodoModal: React.FC<Props> = ({
 
     return error;
   };
-console.log("editdata",editData);
+  console.log("editdata", editData);
 
   const storeDataInDb = async () => {
     const dataToBeSend = JSON.parse(JSON.stringify(newTodo));
