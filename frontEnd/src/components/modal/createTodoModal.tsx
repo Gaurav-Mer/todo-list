@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { emailRegex, taskType } from "../../helpers/constant";
+import { taskType } from "../../helpers/constant";
 import { useSelector } from "react-redux";
 import { RootState } from "../../reduxConfig/store";
 import { ToastContainer, toast } from "react-toastify";
@@ -213,62 +213,6 @@ const CreateTodoModal: React.FC<Props> = ({
       obj.associateWith[index]["role"] = e.target.value;
       return obj;
     });
-  };
-
-  const valiDateUserEmail = async (email: string) => {
-    try {
-      const response = await fetch("http://localhost:3001/api/validateEmail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-        //   credentials: "include", // Include credentials for cross-origin requests
-      });
-      const jsonData = await response.json();
-      if (!response || response?.status !== 200 || !jsonData?.success) {
-        toast.error(jsonData?.msg);
-        return false;
-      }
-      return true;
-    } catch (error) {
-      toast.error("Something Went Wrong!");
-      return false;
-    }
-  };
-
-  const addNewUser = async (index: any, type: any) => {
-    // if click + => check that all its prev data are filled uf not show error
-    //if filled check its format then validateEmail
-
-    if (newTodo.associateWith[index].email?.length > 0) {
-      //validating the email format
-      if (!emailRegex.test(newTodo.associateWith[index]?.email)) {
-        return setErrorList({ email: index, msg: "Invalid email" });
-      }
-      //validate that the enter email is is db or not :-
-      const isValid =
-        type === "desc"
-          ? true
-          : await valiDateUserEmail(newTodo.associateWith[index]?.email);
-      if (isValid) {
-        setNewTodo((prev) => {
-          let obj = { ...prev };
-          if (type === "desc") {
-            //removing the element
-            obj.associateWith = obj.associateWith.filter((_, i) => i !== index);
-          } else if (obj?.associateWith?.length < 5) {
-            obj.associateWith = [
-              ...obj.associateWith,
-              { email: "", role: "user" },
-            ];
-          }
-          return obj;
-        });
-      }
-    } else if (type === "inc") {
-      setErrorList({ email: index, msg: "This field can not be empty" });
-    }
   };
 
   const handleChangeUser = (
