@@ -124,7 +124,7 @@ const CardView: React.FC<OverAllSt> = ({ setTodoList, todo }) => {
     <div className="row gx-2 ">
       <Card
         className="m-0 p-0 "
-        title={todo?.title}
+        title={isCompleted ? <s>{todo?.title}</s> : todo?.title}
         subTitle={
           <>
             <span>
