@@ -28,12 +28,13 @@ const ProfileDrawer: React.FC<OuterFace> = ({ onClose, show, userData }) => {
     try {
       const formData = new FormData();
       formData.append("avatar", userAvatar?.data);
-      formData.append("id", userData?.id);
+      formData.append("id", userData?.id || userData?._id);
       formData.append(
         "image_id",
         userData?.avatar ? userData?.avatar?.path : ""
       );
 
+      // return;
       const response = await fetch(`http://localhost:3001/api/uploadAvatar`, {
         method: "POST",
 

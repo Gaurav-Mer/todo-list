@@ -18,7 +18,7 @@ const addNewTodo = async (req, res) => {
 
     const data = await TodoSchema.create(newData);
     if (data) {
-        res.status(200).json({ msg: "Todo added successfully" })
+        res.status(200).json({ msg: "Todo added successfully", rData: data?._id })
     } else {
         res.status(400).json({ msg: "Can not added todo" })
     }

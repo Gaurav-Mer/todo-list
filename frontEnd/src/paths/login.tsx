@@ -117,7 +117,7 @@ export default function Login() {
 
   return (
     <div className={styles.main}>
-      <div className={styles.container}>
+      <div className={`${styles.container}`}>
         <div className="mt-5">
           <h3 className="text-center">Login to Todo </h3>
           <div>

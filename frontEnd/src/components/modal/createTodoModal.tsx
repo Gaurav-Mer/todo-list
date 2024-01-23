@@ -83,19 +83,13 @@ const CreateTodoModal: React.FC<Props> = ({
 
     return error;
   };
+console.log("editdata",editData);
 
   const storeDataInDb = async () => {
     const dataToBeSend = JSON.parse(JSON.stringify(newTodo));
-
-    // if (!isEdit) {
-    //   dataToBeSend.associateWith.push({
-    //     email: userData?.email,
-    //     role: "admin",
-    //   });
-    // }
     //adding id for updating
     if (isEdit) {
-      dataToBeSend.id = editData?._id;
+      dataToBeSend.id = editData?._id || editData?.id;
     }
 
     // if user select type of self then only userData is set to assoicateUser no other user
@@ -132,7 +126,11 @@ const CreateTodoModal: React.FC<Props> = ({
             (tType &&
               tType?.toLowerCase() === dataToBeSend?.level?.toLowerCase()))
         ) {
-          setTodoList((prev: Record<any, any>[]) => [dataToBeSend, ...prev]);
+          const jsonData = await response.json();
+          setTodoList((prev: Record<any, any>[]) => [
+            { ...dataToBeSend, _id: jsonData?.rData },
+            ...prev,
+          ]);
         } else if (isEdit && setTodoList) {
           setTodoList((prev: Record<any, any>[]) => {
             let obj = [...prev];

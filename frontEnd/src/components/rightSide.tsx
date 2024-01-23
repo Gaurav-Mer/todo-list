@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { returnTodayFormat } from "../helpers/validate";
 import SingleTodo from "./singleTodo";
+import CardView from "./cardView";
 
 type SingleTodo = Record<string, string>;
 interface OverAllSt {
@@ -45,12 +46,16 @@ const RightSide: React.FC<OverAllSt> = ({
           </div>
         </div>
         <h6 className="fw-normal">{todayFormat ?? todayFormat}</h6>
-        <div className="mt-2">
+        <div className="mt-2 row">
           {todoList?.length > 0 ? (
             todoList?.map((item, index) => {
               return (
-                <div key={index}>
-                  <SingleTodo setTodoList={setTodoList} todo={item} />
+                <div key={index} className={!styleGrid ? "col-4    my-2" : ""}>
+                  {!styleGrid ? (
+                    <CardView setTodoList={setTodoList} todo={item} />
+                  ) : (
+                    <SingleTodo setTodoList={setTodoList} todo={item} />
+                  )}
                 </div>
               );
             })

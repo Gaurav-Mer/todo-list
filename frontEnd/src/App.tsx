@@ -10,6 +10,7 @@ import { setUserData, toggleRedirect } from "./reduxConfig/slices/todoSlices";
 import { RootState } from "./reduxConfig/store";
 import ProtectedRoute from "./paths/protectedRoute";
 import Team from "./paths/team";
+import SuspenseExample from "./paths/suspenseExample";
 
 const AppRouter: React.FC = () => {
   const store = useSelector((state: RootState) => state);
@@ -117,6 +118,7 @@ const AppRouter: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            <Route  path="/suspense" element={<SuspenseExample/>}   />
           </Routes>
         </BrowserRouter>
       ) : (
