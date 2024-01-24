@@ -4,8 +4,8 @@ const http = require("http");
 const server = http.createServer(app);
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
-app.use('/avatar', express.static('avatar'));
-app.use(express.urlencoded({ extended: true }));
+app.use('/avatar', express.static('avatar')); //to use public assets like images etc
+app.use(express.urlencoded({ extended: true })); //url encoder h it tells ki accept data from url as well it encodes the special character in url ex space with %20 etc 
 
 const { connectDb } = require("./db.js");
 const registerForm = require("./routes/register.js");
@@ -22,7 +22,7 @@ const handleUserMail = require("./routes/validateEmail.js")
 // app.use(cors({ credentials: true, origin: 'http://127.0.0.1:5173' }));
 app.use(cors({ credentials: true, origin: ["http://127.0.0.1:5173", "http://localhost:5173"] }));
 app.use(express.json()); // Middleware to parse JSON requests
-app.use(cookieParser());
+app.use(cookieParser()); //can perform action on user browers cookies
 
 
 const port = 3001;

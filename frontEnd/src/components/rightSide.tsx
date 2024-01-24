@@ -17,6 +17,7 @@ const RightSide: React.FC<OverAllSt> = ({
 }) => {
   const todayFormat = returnTodayFormat();
   const [styleGrid, setStyleGrid] = useState(true);
+
   return (
     <>
       <div className="container-fluid p-4">
@@ -50,7 +51,10 @@ const RightSide: React.FC<OverAllSt> = ({
           {todoList?.length > 0 ? (
             todoList?.map((item, index) => {
               return (
-                <div key={index} className={!styleGrid ? "col-4    my-2" : ""}>
+                <div
+                  key={index}
+                  className={!styleGrid ? "col-12 col-md-4 my-2" : ""}
+                >
                   {!styleGrid ? (
                     <CardView setTodoList={setTodoList} todo={item} />
                   ) : (

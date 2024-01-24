@@ -11,12 +11,12 @@ const Testing = () => {
   const [showBox, setShowBox] = useState(false);
   const [query, setQuery] = useSearchParams();
   const location = useLocation();
-  // console.log(
-  //   "query is ",
-  //   query,
-  //   location.search,
-  //   import.meta.env.VITE_BACKEND_URL
-  // );
+  console.log(
+    "query is ",
+    query,
+    location.search,
+    import.meta.env.VITE_BACKEND_URL
+  );
   const handleChange = (e: any) => {
     setValue(e.target.value);
     if (!e.target.value) {
@@ -32,7 +32,7 @@ const Testing = () => {
   };
 
   const debounceData = useDebounce(value);
-
+        
   return (
     <div>
       {/* <Outlet /> */}

@@ -5,6 +5,9 @@ const { TodoSchema } = require("../models/todo");
 const getAllTodos = async (req, res) => {
     const { DO_NOT_SHARE } = req.cookies;
     const { filter, todoType } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5; // Number of documents per page
+
     if (DO_NOT_SHARE) {
         const respData = await extractDataFromToken(DO_NOT_SHARE);
         if (respData && respData?.hasOwnProperty("status") && respData?.status === 200) {
@@ -22,7 +25,10 @@ const getAllTodos = async (req, res) => {
                 }
 
 
-                const allData = await TodoSchema.find(queries);
+                const allData = await TodoSchema.find(queries).sort({ createdAt: -1 }).skip((page - 1) * limit)
+                    .limit(limit)
+                    .exec();
+                ;
                 if (allData) {
                     return res.status(200).json({ success: true, rData: allData });
                 }

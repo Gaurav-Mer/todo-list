@@ -7,9 +7,15 @@ import { useNavigate } from "react-router-dom";
 interface StateProps {
   setTodoList: React.Dispatch<React.SetStateAction<any>>;
   userData: Record<any, any>;
+  pageType?: string;
+  callBackFunc?: (val?: any) => void;
 }
 
-const DesktopLeft: React.FC<StateProps> = ({ setTodoList }) => {
+const DesktopLeft: React.FC<StateProps> = ({
+  setTodoList,
+  pageType,
+  callBackFunc,
+}) => {
   const navigator = useNavigate();
   const queryParameters = new URLSearchParams(window.location.search);
   const tType = queryParameters.get("tType");
@@ -28,15 +34,23 @@ const DesktopLeft: React.FC<StateProps> = ({ setTodoList }) => {
       const pathName = window.location.pathname;
       navigator(pathName);
     }
+
+    if (pageType && callBackFunc) {
+      callBackFunc();
+    }
   };
 
+  const handleClick = () => {
+    setModalShow((prev) => !prev);
+    if (pageType && callBackFunc) {
+      callBackFunc();
+    }
+  };
 
   return (
     <div className={`bg-white vh-100 p-4 `}>
       <div
-        onClick={() => {
-          setModalShow((prev) => !prev);
-        }}
+        onClick={handleClick}
         className="bg-primary p-2 rounded-3 d-flex gap-4"
         style={{ cursor: "pointer" }}
       >
