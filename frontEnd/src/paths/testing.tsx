@@ -1,59 +1,69 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
+import { useDebounce } from "../customHooks";
+import { useLocation, useSearchParams } from "react-router-dom";
+const SuggestionData = React.lazy(() => import("../components/suggestionData"));
 
-export default function Testing() {
-  const [first, setFirst] = useState(0);
-  const [second, setSecond] = useState(0);
-  //   const [isEven, setIsEven] = useState(false);
-  const handleFirst = () => {
-    setFirst((prev) => prev + 1);
+// const fetchData = fetch("http://localhost:3001/api/getTodos");
+
+const Testing = () => {
+  const useSuggestionBox: any = useRef(null);
+  const [value, setValue] = useState("");
+  const [showBox, setShowBox] = useState(false);
+  const [query, setQuery] = useSearchParams();
+  const location = useLocation();
+  console.log(
+    "query is ",
+    query,
+    location.search,
+    import.meta.env.VITE_BACKEND_URL
+  );
+  const handleChange = (e: any) => {
+    setValue(e.target.value);
+    if (!e.target.value) {
+      setShowBox(false);
+    } else {
+      setShowBox(true);
+    }
   };
 
-  const handleSEcond = () => {
-    setSecond((prev) => prev + 1);
+  const clickOnItem = (val: any) => {
+    setValue(val);
+    setShowBox(false);
   };
 
-  //   useEffect(() => {
-  //     console.log("I AM USEEFECT");
-  //     if (second % 2 == 0) {
-  //       setIsEven(true);
-  //     } else {
-  //       setIsEven(false);
-  //     }
-  //   }, [[second]]);
-
-  //example of useMEMO
-  const isEven = useMemo(() => {
-    console.log("i am ------");
-
-    return second % 2 === 0;
-  }, [second]);
-
+  const debounceData = useDebounce(value);
+        
   return (
-    <>
-      I am for testing purpuse
-      <div className="d-flex gap-4 justify-content-center ">
-        <h3 className="d-flex justify-content-center ">First -{first}</h3>
-        <h3 className="d-flex justify-content-center ">
-          Second - {second} & - {isEven ? "EVEN" : "ODD"}
-        </h3>
-      </div>
-      <div className="d-flex justify-content-center ">
-        <div className="d-flex gap-4 ">
-          <button
-            onClick={handleFirst}
-            className="bg-warning border-0 rounded-1 p-2 "
-          >
-            first inc
-          </button>
-
-          <button
-            onClick={handleSEcond}
-            className="bg-info   fw-bold  border-0 rounded-1 p-2 "
-          >
-            sec inc
-          </button>
+    <div>
+      {/* <Outlet /> */}
+      <div className="row mt-4 ms-4">
+        <div className="col-4">
+          <div className="row">
+            <input
+              type="text"
+              value={value}
+              onChange={handleChange}
+              className="form-control bg-body-secondary"
+              id="formGroupExampleInput"
+              placeholder="Example input placeholder"
+            />
+            {showBox ? (
+              <Suspense fallback="LOADING...">
+                <SuggestionData
+                  showBox={showBox}
+                  useSuggestionBox={useSuggestionBox}
+                  clickOnItem={clickOnItem}
+                  debounceval={debounceData}
+                />
+              </Suspense>
+            ) : (
+              ""
+            )}
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
+
+export default Testing;

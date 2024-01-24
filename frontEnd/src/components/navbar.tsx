@@ -1,6 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
+import ProfileDrawer from "./modal/profileDrawer";
 
-export default function Navbar() {
+type OverAllSt = Record<string, string | any>;
+const Navbar: React.FC<OverAllSt> = ({ userData }) => {
+  const [loader, setLoader] = useState<boolean>(false);
+  const [editProfile, setEditProfile] = useState({ open: false });
+
+  const logoutUser = async () => {
+    try {
+      setLoader(true);
+      let url = "http://localhost:3001/api/logout";
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Context-type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (resp && resp.status === 200) {
+        window.location.reload();
+      } else {
+        setLoader(false);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log("error is =>", error);
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-primary bg-gradient  text-white">
       <div className="container-fluid">
@@ -9,44 +37,54 @@ export default function Navbar() {
         </a>
 
         <div className="d-flex gap-4">
-          {true ? (
+          {userData?.avatar ? (
             <img
-              src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
-              className="rounded-circle"
-              style={{ width: 40 }}
+              onClick={() =>
+                setEditProfile((prev) => ({ ...prev, open: true }))
+              }
+              src={`http://localhost:3001/avatar/${userData?.avatar?.data}`} // Replace with your server and avatar folder
+              className="rounded-2"
+              style={{ width: 40, height: 40 }}
               alt="Avatar"
             />
           ) : (
             <div
-              className="rounded-circle bg-secondary container fw-bold d-flex align-items-center justify-content-center"
-              style={{ width: 40, height: 40 }}
+              onClick={() =>
+                setEditProfile((prev) => ({ ...prev, open: true }))
+              }
+              className="rounded-2 bg-warning container me-2  fw-bold d-flex align-items-center justify-content-center"
+              style={{ width: 35, height: 35 }}
             >
-              G
+              {userData?.name ? userData?.name[0] : ""}
             </div>
           )}
-          <button className="text-white align-items-center d-flex container border-0 bg-transparent">
-            <span className="d-none d-sm-block ">logout</span>{" "}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="currentColor"
-              className="bi bi-box-arrow-right"
-              viewBox="0 0 16 16"
-              style={{ marginLeft: 8 }}
+          {loader ? (
+            <div className="me-4 mt-2">
+              <div
+                style={{ width: 20, height: 20 }}
+                className="spinner-border ms-4  d-flex justify-content-center mx-auto "
+                role="status"
+              ></div>
+            </div>
+          ) : (
+            <button
+              onClick={logoutUser}
+              className="text-white align-items-center d-flex container border-0 bg-transparent"
             >
-              <path
-                fill-rule="evenodd"
-                d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"
-              />
-              <path
-                fill-rule="evenodd"
-                d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"
-              />
-            </svg>
-          </button>
+              <span className="d-none d-sm-block ">logout</span>{" "}
+              <i className="fa-solid fa-right-from-bracket ms-2  mt-1 "></i>
+            </button>
+          )}
         </div>
       </div>
+      <ProfileDrawer
+        show={editProfile?.open}
+        onClose={() => setEditProfile((prev) => ({ ...prev, open: false }))}
+        isEdit={true}
+        userData={userData}
+      />
     </nav>
   );
-}
+};
+
+export default Navbar;

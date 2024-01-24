@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "../register.module.css";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData, toggleRedirect } from "../reduxConfig/slices/todoSlices";
+import { ToastContainer, toast } from "react-toastify";
+import { emailRegex } from "../helpers/constant";
 
 export default function Register() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   interface formFormat {
     name: string;
     email: string;
-    avatar: string;
     password: string;
     confirmPassword: string;
   }
   const [formData, setFormData] = useState<formFormat>({
     name: "",
     email: "",
-    avatar: "",
     password: "",
     confirmPassword: "",
   });
@@ -35,19 +38,6 @@ export default function Register() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // ---------------------- handle the image change --------------
-  const handleImage = (file: React.ChangeEvent<HTMLInputElement>) => {
-    if (file.target.files && file.target.files[0]) {
-      // ---- converting image to base64 ---------
-      let reader = new FileReader();
-      reader.readAsDataURL(file.target.files[0]);
-      reader.onload = () => {
-        let baseURL = reader.result as string;
-        setFormData((prev) => ({ ...prev, avatar: baseURL }));
-      };
-    }
-  };
-
   const validateData = (data: formFormat) => {
     let error: Record<string, string> = {}; // Define the type of the error object
     if (!data?.name || data?.name?.length <= 0) {
@@ -59,6 +49,8 @@ export default function Register() {
       error["email"] = "Please Enter email";
     } else if (data?.email?.length > 40) {
       error["email"] = "Maximum 40 length allowed";
+    } else if (!emailRegex.test(data?.email)) {
+      error["email"] = "Invalid Email";
     }
 
     if (!data?.password || data?.password?.length <= 0) {
@@ -90,13 +82,23 @@ export default function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(dataToBeSend),
+        credentials: "include", // Include credentials for cross-origin requests
       });
       if (response?.status !== 200) {
         setLoader(false);
       } else {
+        const jsonData = await response.json();
+        if (
+          jsonData?.hasOwnProperty("rData") &&
+          Object.keys(jsonData?.rData)?.length > 0
+        ) {
+          dispatch(setUserData({ tokenData: jsonData?.rData }));
+        }
+        dispatch(toggleRedirect(false));
         navigate("/");
       }
     } catch (error) {
+      toast.error("Something Went Wrong!");
       console.log("error is =>", error);
       setLoader(false);
     }
@@ -304,73 +306,6 @@ export default function Register() {
               )}
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="exampleInputEmail1" className="form-label">
-                Select Avatar
-              </label>
-              <div className="input-group mb-3">
-                <div className="input-group-text">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-person-circle"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                    <path
-                      fill-rule="evenodd"
-                      d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-                    />
-                  </svg>
-                </div>
-                {formData?.avatar ? (
-                  <p
-                    style={{
-                      marginTop: 10,
-                      marginLeft: 5,
-                      display: "flex",
-                      gap: 10,
-                    }}
-                  >
-                    {formData?.avatar?.slice(0, 20)}{" "}
-                    <svg
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, avatar: "" }))
-                      }
-                      style={{ color: "red", marginTop: 5, cursor: "pointer" }}
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      fill="currentColor"
-                      className="bi bi-x-circle"
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
-                    </svg>
-                  </p>
-                ) : (
-                  <>
-                    <label
-                      style={{ width: "83%" }}
-                      className="input-group-text"
-                      htmlFor="inputGroupFile01"
-                    >
-                      Upload your avatar
-                    </label>
-                    <input
-                      onChange={handleImage}
-                      style={{ display: "none" }}
-                      type="file"
-                      className="form-control"
-                      id="inputGroupFile01"
-                    />
-                  </>
-                )}
-              </div>
-            </div>
             {loader ? (
               <div
                 className="spinner-border text-primary  d-flex justify-content-center mx-auto "
@@ -392,6 +327,7 @@ export default function Register() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -2,17 +2,17 @@
 //in Redux toolkit we create slices
 //reducer & action creater are created by this slice func createSlice
 
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import {  createSlice } from "@reduxjs/toolkit";
 
 interface TodoState {
   userData: Record<string, any>; // Adjust the type based on the actual structure of userData
-  redirect: boolean;
+  redirect: any;
 }
 
 //initial value
 const initalValue: TodoState = {
   userData: {},
-  redirect: false,
+  redirect: -1,
 };
 
 const todoSlice = createSlice({
