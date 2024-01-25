@@ -64,7 +64,7 @@ const AppRouter: React.FC = () => {
   useEffect(() => {
     const r = setTimeout(() => {
       setLoadElement(true);
-    }, 500);
+    }, 700);
     return () => clearTimeout(r);
   }, []);
 
@@ -118,7 +118,7 @@ const AppRouter: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-            <Route  path="/suspense" element={<SuspenseExample/>}   />
+            <Route path="/suspense" element={<SuspenseExample />} />
           </Routes>
         </BrowserRouter>
       ) : (

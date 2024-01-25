@@ -6,7 +6,7 @@ const getAllTodos = async (req, res) => {
     const { DO_NOT_SHARE } = req.cookies;
     const { filter, todoType } = req.query;
     const page = parseInt(req.query.page) || 1;
-    const limit = 5; // Number of documents per page
+    const limit = 10; // Number of documents per page
 
     if (DO_NOT_SHARE) {
         const respData = await extractDataFromToken(DO_NOT_SHARE);
@@ -24,7 +24,7 @@ const getAllTodos = async (req, res) => {
                     queries["assignTo"] = "self"
                 }
 
-
+                console.log("queries is ", queries);
                 const allData = await TodoSchema.find(queries).sort({ createdAt: -1 }).skip((page - 1) * limit)
                     .limit(limit)
                     .exec();

@@ -7,6 +7,7 @@ interface Props {
   setVisible: React.Dispatch<React.SetStateAction<any>>;
   setTodoList: React.Dispatch<React.SetStateAction<any>>;
   userData: Record<any, any>;
+  toggleModal: () => void
 }
 
 const MobileSideBar: React.FC<Props> = ({
@@ -14,18 +15,24 @@ const MobileSideBar: React.FC<Props> = ({
   setVisible,
   userData,
   setTodoList,
+  toggleModal
 }) => {
+
+  const handleCallBack = () => {
+    toggleModal()
+    setVisible(false)
+  }
   return (
     <>
       <Sidebar
         header={<>HEADER</>}
         visible={visible}
         onHide={() => setVisible(false)}
-        // icons={customIcons}
+      // icons={customIcons}
       >
         <DesktopLeft
           pageType="MobileView"
-          callBackFunc={() => setVisible((prev: any) => !prev)}
+          callBackFunc={handleCallBack}
           setTodoList={setTodoList}
           userData={userData}
         />

@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { taskType } from "../helpers/constant";
 import styles from "../register.module.css";
-import CreateTodoModal from "./modal/createTodoModal";
 import { useNavigate } from "react-router-dom";
 
 interface StateProps {
@@ -12,7 +11,6 @@ interface StateProps {
 }
 
 const DesktopLeft: React.FC<StateProps> = ({
-  setTodoList,
   pageType,
   callBackFunc,
 }) => {
@@ -20,12 +18,6 @@ const DesktopLeft: React.FC<StateProps> = ({
   const queryParameters = new URLSearchParams(window.location.search);
   const tType = queryParameters.get("tType");
 
-  //state
-  const [modalShow, setModalShow] = useState(false);
-  //function
-  const handleCloseModal = () => {
-    setModalShow((prev) => !prev);
-  };
 
   const handleRoute = (type: any) => {
     if (type) {
@@ -41,14 +33,13 @@ const DesktopLeft: React.FC<StateProps> = ({
   };
 
   const handleClick = () => {
-    setModalShow((prev) => !prev);
     if (pageType && callBackFunc) {
       callBackFunc();
     }
   };
 
   return (
-    <div className={`bg-white vh-100 p-4 `}>
+    <div className={`bg-white vh-100 p-4 `} style={{ position: 'fixed', top: 50 }}>
       <div
         onClick={handleClick}
         className="bg-primary p-2 rounded-3 d-flex gap-4"
@@ -147,15 +138,6 @@ const DesktopLeft: React.FC<StateProps> = ({
           );
         })}
       </ul>
-      {modalShow ? (
-        <CreateTodoModal
-          setTodoList={setTodoList}
-          show={modalShow}
-          onClose={handleCloseModal}
-        />
-      ) : (
-        ""
-      )}
     </div>
   );
 };

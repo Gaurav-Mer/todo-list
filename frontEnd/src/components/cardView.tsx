@@ -7,9 +7,10 @@ import CreateTodoModal from "./modal/createTodoModal";
 interface OverAllSt {
   todo: Record<string, string>;
   setTodoList: React.Dispatch<React.SetStateAction<any>>;
+  userData: Record<any, any>
 }
 
-const CardView: React.FC<OverAllSt> = ({ setTodoList, todo }) => {
+const CardView: React.FC<OverAllSt> = ({ setTodoList, todo, userData }) => {
   const [showMore, setShowMore] = useState<Boolean>(false);
   const [isCompleted, setIsComplted] = useState<any>(false);
   const [editTodo, setEditTodo] = useState({
@@ -18,36 +19,40 @@ const CardView: React.FC<OverAllSt> = ({ setTodoList, todo }) => {
     complete: false,
   });
 
+
+  const currentUser = todo?.associateWith ? (todo?.associateWith as any)?.find((data: any) => data?.email === userData?.email) : {}
+
+
   const badgeColor = todo?.level
     ? todo?.level?.toLowerCase() === "new"
       ? "bg-primary bg-gradient"
       : todo?.level?.toLowerCase() === "completed"
-      ? "bg-success bg-gradient"
-      : todo?.level?.toLowerCase() === "pending"
-      ? "bg-info bg-gradient"
-      : todo?.level?.toLowerCase() === "review"
-      ? "bg-warning bg-gradient"
-      : todo?.level?.toLowerCase() === "on hold"
-      ? "bg-secondary bg-gradient"
-      : "bg-danger bg-gradient"
+        ? "bg-success bg-gradient"
+        : todo?.level?.toLowerCase() === "pending"
+          ? "bg-info bg-gradient"
+          : todo?.level?.toLowerCase() === "review"
+            ? "bg-warning bg-gradient"
+            : todo?.level?.toLowerCase() === "on hold"
+              ? "bg-secondary bg-gradient"
+              : "bg-danger bg-gradient"
     : "";
 
   const footer = (
     <div className="d-flex justify-content-between ">
-      <div>
+      <div className={currentUser?.role !== "admin" ? "d-none" : ""}>
         <button
           onClick={() =>
             setEditTodo((prev) => ({ ...prev, open: true, data: todo }))
           }
           className="border-0  bg-primary text-white rounded p-1"
         >
-          Edit {<i className="fa-regular fa-pen-to-square p-1"></i>}
+          <span className="d-none d-xl-inline">Edit</span>  {<i className="fa-regular fa-pen-to-square p-1"></i>}
         </button>
         <button
           onClick={() => handleDeleteTodo(todo?._id)}
           className="border-0 ms-3  bg-danger text-white rounded p-1"
         >
-          delete {<i className="fa-regular fa-trash-can p-1"></i>}
+          <span className="d-none d-xl-inline">Delete</span> {<i className="fa-regular fa-trash-can p-1"></i>}
         </button>
       </div>
       <Badge value={todo?.level} className={`${badgeColor} mt-1`} />
