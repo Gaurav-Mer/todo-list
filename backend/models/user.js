@@ -13,7 +13,8 @@ const UserSchema = new mongoose.Schema({
     avatar: imageSchema,
     u_id: { type: String, unique: true },
     isActive: { type: Boolean },
-    role: { type: String }
+    role: { type: String },
+    metaData: { type: mongoose.Schema.Types.Mixed }
 });
 
 const UserModel = mongoose.model('UserSchema', UserSchema);

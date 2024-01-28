@@ -11,6 +11,9 @@ import { RootState } from "./reduxConfig/store";
 import ProtectedRoute from "./paths/protectedRoute";
 import Team from "./paths/team";
 import SuspenseExample from "./paths/suspenseExample";
+import TestStripe from "./paths/testStripe";
+import StripeError from "./paths/stripeError";
+import Success from "./paths/success";
 
 const AppRouter: React.FC = () => {
   const store = useSelector((state: RootState) => state);
@@ -119,6 +122,10 @@ const AppRouter: React.FC = () => {
               }
             />
             <Route path="/suspense" element={<SuspenseExample />} />
+            <Route path="/stripe" element={<TestStripe />} />
+            <Route path="/stripeError" element={<StripeError />} />
+            <Route path="/stripeSuccess" element={<Success />} />
+
           </Routes>
         </BrowserRouter>
       ) : (

@@ -16,7 +16,8 @@ const getTodos = require("./routes/todoList.js");
 const logoutRoute = require("./routes/logout.js");
 const uploadUserAvatar = require("./routes/uploadAvatar.js");
 const userData = require("./routes/fetchUserData.js");
-const handleUserMail = require("./routes/validateEmail.js")
+const handleUserMail = require("./routes/validateEmail.js");
+const handleSubs = require("./routes/handleSubs.js")
 
 // app.use(cors());
 // app.use(cors({ credentials: true, origin: 'http://127.0.0.1:5173' }));
@@ -36,6 +37,7 @@ app.use("/api/logout", logoutRoute);
 app.use("/api/uploadAvatar", uploadUserAvatar);
 app.use("/api/fetchProfileData", userData);
 app.use("/api/validateEmail", handleUserMail);
+app.use("/api/createSubscription", handleSubs)
 
 
 connectDb().then(() => {
