@@ -19,11 +19,9 @@ const SubscriptionModal: React.FC<Props> = ({ subsList }) => {
 
 
     const handleSubscribe = async (item: any) => {
-
         if (!stripe || !elements) {
             return;
         }
-
         setLoading(true);
         const { default_price } = item;
 
