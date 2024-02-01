@@ -26,7 +26,7 @@ app.use(express.json()); // Middleware to parse JSON requests
 app.use(cookieParser()); //can perform action on user browers cookies
 
 
-const port = 3001;
+const port = process.env.port || 3001;
 app.use("/register", registerForm);
 app.use("/login", loginRoute);
 app.use("/api/createTodo", addTodo);

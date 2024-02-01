@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" &git remote add origin https://github.com/Gaurav-Mer/timeSeriesChart.git& exit 1",
     "start": "nodemon index.js",
     "deploye": "npm start"
   },
   "author": "",
   "keywords": [],
-  "license": "ISC",
   "dependencies": {
+  "license": "ISC",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
