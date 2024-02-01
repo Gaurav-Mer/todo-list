@@ -37,7 +37,7 @@ app.use("/api/logout", logoutRoute);
 app.use("/api/uploadAvatar", uploadUserAvatar);
 app.use("/api/fetchProfileData", userData);
 app.use("/api/validateEmail", handleUserMail);
-app.use("/api/createSubscription", handleSubs)
+app.use("/api/createSubscription", handleSubs);
 
 
 connectDb().then(() => {
