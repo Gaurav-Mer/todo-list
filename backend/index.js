@@ -19,7 +19,6 @@ const userData = require("./routes/fetchUserData.js");
 const handleUserMail = require("./routes/validateEmail.js");
 const handleSubs = require("./routes/handleSubs.js")
 
-
 // app.use(cors());
 // app.use(cors({ credentials: true, origin: 'http://127.0.0.1:5173' }));
 app.use(cors({ credentials: true, origin: ["http://127.0.0.1:5173", "http://localhost:5173"] }));
