@@ -24,6 +24,7 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
   const [modalShow, setModalShow] = useState(false);
   //ref is for infiniteScroll
   const isDataFetchRef = InfiniteScroll(intersectionRef);
+
   const location = useLocation();
 
   const fetchAllTodos = async (type: any, signal: any) => {

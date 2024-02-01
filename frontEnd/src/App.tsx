@@ -122,7 +122,7 @@ const AppRouter: React.FC = () => {
               }
             />
             <Route path="/suspense" element={<SuspenseExample />} />
-            <Route path="/stripe" element={<TestStripe />} />
+            {/* <Route path="/stripe" element={<TestStripe />} /> */}
             <Route path="/stripeError" element={<StripeError />} />
             <Route path="/stripeSuccess" element={<Success />} />
 
