@@ -83,7 +83,6 @@ const CreateTodoModal: React.FC<Props> = ({
 
     return error;
   };
-  console.log("editdata", editData);
 
   const storeDataInDb = async () => {
     const dataToBeSend = JSON.parse(JSON.stringify(newTodo));
@@ -242,6 +241,9 @@ const CreateTodoModal: React.FC<Props> = ({
     }
   }, [isEdit]);
 
+  console.log('DIALOG IS ',show);
+  
+
   return (
     <div>
       <Modal
@@ -272,9 +274,8 @@ const CreateTodoModal: React.FC<Props> = ({
               <input
                 type="text"
                 placeholder="Enter Title"
-                className={`form-control ${
-                  errorList?.title ? "is-invalid " : ""
-                }`}
+                className={`form-control ${errorList?.title ? "is-invalid " : ""
+                  }`}
                 onChange={handleChange}
                 value={newTodo?.title}
                 name="title"
@@ -294,9 +295,8 @@ const CreateTodoModal: React.FC<Props> = ({
                 value={newTodo?.assignTo}
                 id="inputState2"
                 name="assignTo"
-                className={`form-control ${
-                  errorList?.assignTo ? "is-invalid " : ""
-                }`}
+                className={`form-control ${errorList?.assignTo ? "is-invalid " : ""
+                  }`}
               >
                 <option value="self">Self </option>
                 <option
@@ -329,9 +329,8 @@ const CreateTodoModal: React.FC<Props> = ({
               </label>
               <input
                 type="date"
-                className={`form-control ${
-                  errorList?.dueDate ? "is-invalid " : ""
-                }`}
+                className={`form-control ${errorList?.dueDate ? "is-invalid " : ""
+                  }`}
                 id="inputAddress"
                 placeholder="Enter Description for todo"
                 min={3}
@@ -352,9 +351,8 @@ const CreateTodoModal: React.FC<Props> = ({
               </label>
               <input
                 type="time"
-                className={`form-control ${
-                  errorList?.dueTime ? "is-invalid " : ""
-                }`}
+                className={`form-control ${errorList?.dueTime ? "is-invalid " : ""
+                  }`}
                 id="inputAddress"
                 placeholder="Enter Description for todo"
                 name="dueTime"
@@ -376,9 +374,8 @@ const CreateTodoModal: React.FC<Props> = ({
                 value={newTodo?.level}
                 id="inputState"
                 name="level"
-                className={`form-control ${
-                  errorList?.level ? "is-invalid " : ""
-                }`}
+                className={`form-control ${errorList?.level ? "is-invalid " : ""
+                  }`}
               >
                 {Object.keys(taskType)?.map((item: string, index) => {
                   return (
@@ -402,9 +399,8 @@ const CreateTodoModal: React.FC<Props> = ({
                 onChange={handleArea}
                 rows={3}
                 value={newTodo?.description}
-                className={`form-control mt-3 ${
-                  errorList?.description ? "is-invalid " : ""
-                }`}
+                className={`form-control mt-3 ${errorList?.description ? "is-invalid " : ""
+                  }`}
               />
               {errorList?.description ? (
                 <div className="text-danger">{errorList?.description}</div>

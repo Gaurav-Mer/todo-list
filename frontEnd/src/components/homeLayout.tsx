@@ -7,6 +7,8 @@ import TodoLoader from "./loader/todoLoader";
 import RightSide from "./rightSide";
 import styles from "../register.module.css";
 import { useLocation } from "react-router-dom";
+import { InfiniteScroll } from "./infiniteScroll";
+import CreateTodoModal from "./modal/createTodoModal";
 
 interface Props {
   Ptype: string;
@@ -18,20 +20,24 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
   const [todoList, setTodoList] = useState<Record<any, any>[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
   const intersectionRef = useRef<any>(null);
-
+  const [pageQuery, setPageQuery] = useState<number>(1);
+  const [modalShow, setModalShow] = useState(false);
+  //ref is for infiniteScroll
+  const isDataFetchRef = InfiniteScroll(intersectionRef);
   const location = useLocation();
 
   const fetchAllTodos = async (type: any, signal: any) => {
     try {
       let url =
         Ptype === "team"
-          ? "http://localhost:3001/api/getTodos?todoType=team"
-          : "http://localhost:3001/api/getTodos";
+          ? `http://localhost:3001/api/getTodos?todoType=team&page=${pageQuery}`
+          : `http://localhost:3001/api/getTodos?page=${pageQuery
+          }`;
       if (type && type !== null) {
         url =
           Ptype === "team"
-            ? `http://localhost:3001/api/getTodos?filter=${type}&todoType=team`
-            : `http://localhost:3001/api/getTodos?filter=${type}`;
+            ? `http://localhost:3001/api/getTodos?filter=${type}&todoType=team&page=${pageQuery}`
+            : `http://localhost:3001/api/getTodos?filter=${type}&page=${pageQuery}`;
       }
       const response = await fetch(url, {
         method: "GET",
@@ -46,7 +52,14 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
         const respData = await response.json();
         if (respData?.success) {
           setLoader(false);
-          return setTodoList(respData?.rData);
+          if (intersectionRef && respData?.rData?.length < 9) {
+            intersectionRef.current.style.display = "none"
+          }
+          if (pageQuery > 1) {
+            return setTodoList(prev => [...prev, ...respData?.rData])
+          } else {
+            return setTodoList(respData?.rData);
+          }
         }
       }
       setLoader(false);
@@ -58,6 +71,10 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
     }
   };
 
+  const toggleModal = () => {
+    setModalShow(prev => !prev)
+  }
+
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
@@ -67,17 +84,25 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
     const tType = params.get("tType");
     fetchAllTodos(tType, signal);
     return () => controller.abort();
-  }, [location?.search]);
+  }, [location?.search, pageQuery]);
+
+
+  useEffect(() => {
+    if (todoList?.length > 0 && isDataFetchRef) {
+      setPageQuery(prev => prev + 1)
+    }
+  }, [isDataFetchRef]);
+
 
   return (
-    <div className={`container-fluid p-0 ${styles.bg}`}>
+    <div className={`container-fluid p-0 ${styles.bg}`} style={{ minHeight: "100vh" }}>
       <Navbar userData={userData} />
       <div className="container-fluid">
         <div className="row">
-          <div className="d-none d-md-block  col-2 p-0">
-            <DesktopLeft setTodoList={setTodoList} userData={userData} />
+          <div className="d-none d-md-block   col-3  col-xl-2  p-0 mt-2" >
+            <DesktopLeft pageType="DesktopView" callBackFunc={toggleModal} setTodoList={setTodoList} userData={userData} />
           </div>
-          <div className="col-12 col-md-10">
+          <div className="col-12  col-md-9 col-xl-10 mt-5">
             {loader ? (
               <TodoLoader />
             ) : (
@@ -85,11 +110,9 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
                 setTodoList={setTodoList}
                 todoList={todoList}
                 userData={userData}
+                forwardRef={intersectionRef}
               />
             )}
-          </div>
-          <div className="bg-danger" ref={intersectionRef}>
-            LOADING
           </div>
         </div>
       </div>
@@ -99,12 +122,27 @@ const HomeLayout: React.FC<Props> = ({ Ptype, userData }) => {
         style={{ position: "fixed", right: 20, bottom: 30 }}
         icon={<i className="fa-solid fa-plus fa-lg"></i>}
       />
-      <MobileSideBar
-        userData={userData}
-        setTodoList={setTodoList}
-        visible={visible}
-        setVisible={setVisible}
-      />
+      {visible ?
+        <MobileSideBar
+          userData={userData}
+          setTodoList={setTodoList}
+          visible={visible}
+          setVisible={setVisible}
+          toggleModal={toggleModal}
+        />
+        : ""}
+
+      {modalShow ? (
+        <CreateTodoModal
+          setTodoList={setTodoList}
+          show={modalShow}
+          onClose={toggleModal}
+        />
+      ) : (
+        ""
+      )}
+
+
     </div>
   );
 };

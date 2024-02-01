@@ -76,7 +76,6 @@ const AddMore: React.FC<Props> = ({
         ? true
         : await valiDateUserEmail(newTodo.associateWith[index]?.email);
 
-    console.log("ISVALID", isValid);
 
     if (isValid) {
       setNewTodo((prev) => {
@@ -108,11 +107,10 @@ const AddMore: React.FC<Props> = ({
                   placeholder="Enter email"
                   onChange={(e) => handleChangeUser(e, index)}
                   value={`${item?.email}`}
-                  className={`form-control  ${
-                    errorList?.email && Number(errorList?.email) === index
-                      ? "is-invalid "
-                      : ""
-                  }`}
+                  className={`form-control  ${errorList?.email && Number(errorList?.email) === index
+                    ? "is-invalid "
+                    : ""
+                    }`}
                 />
                 {item?.email === userData?.email ? (
                   <span className="input-group-text text-danger fw-bold">
@@ -128,22 +126,21 @@ const AddMore: React.FC<Props> = ({
                 ""
               )}
             </div>
-            <div className="col-4  bg-light border-2 py-2 ">
+            <div className="col-4 col-md-3 col-xl-4  bg-light border-2 py-2 ">
               <select
                 onChange={(e) => handleSelectUser(e, index)}
                 value={item?.role}
                 id="inputStateRole"
                 name="role"
-                className={`form-control ${
-                  errorList?.level ? "is-invalid " : ""
-                }`}
+                className={`form-control ${errorList?.level ? "is-invalid " : ""
+                  }`}
               >
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
               </select>
             </div>
 
-            <div className="col-1 ms-4 pt-2">
+            <div className="col-1 pt-2">
               <div className="d-flex gap-2 ">
                 {newTodo?.associateWith?.length !== 1 ? (
                   <Button
@@ -157,13 +154,22 @@ const AddMore: React.FC<Props> = ({
                   ""
                 )}
                 {newTodo?.associateWith?.length - 1 === index ? (
-                  <Button size="sm" onClick={() => addNewUser(index, "inc")}>
+                  <Button className="d-none d-sm-block" size="sm" onClick={() => addNewUser(index, "inc")}>
                     <i className="fa-solid fa-plus"></i>
                   </Button>
                 ) : (
                   ""
                 )}
               </div>
+            </div>
+            <div className="col-12">
+              {newTodo?.associateWith?.length - 1 === index ? (
+                <Button  className=" d-sm-none w-100" size="sm" onClick={() => addNewUser(index, "inc")}>
+                  <i className="fa-solid fa-plus"></i> Add member
+                </Button>
+              ) : (
+                ""
+              )}
             </div>
           </>
         );

@@ -30,7 +30,7 @@ const Navbar: React.FC<OverAllSt> = ({ userData }) => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-primary bg-gradient  text-white">
+    <nav className="navbar navbar-expand-lg bg-primary bg-gradient  text-white" style={{ position: 'fixed', width: "100%", zIndex: 2 }}>
       <div className="container-fluid">
         <a className="navbar-brand text-white fw-bold " href="#">
           Todo List

@@ -5,9 +5,10 @@ import CreateTodoModal from "./modal/createTodoModal";
 interface OverAllSt {
   todo: Record<string, string>;
   setTodoList: React.Dispatch<React.SetStateAction<any>>;
+  userData?: Record<any, any>
 }
 
-const SingleTodo: React.FC<OverAllSt> = ({ todo, setTodoList }) => {
+const SingleTodo: React.FC<OverAllSt> = ({ todo, setTodoList, userData }) => {
   const [showMore, setShowMore] = useState<Boolean>(false);
   const [isCompleted, setIsComplted] = useState<any>(false);
   const [editTodo, setEditTodo] = useState({
@@ -25,14 +26,14 @@ const SingleTodo: React.FC<OverAllSt> = ({ todo, setTodoList }) => {
     ? todo?.level?.toLowerCase() === "new"
       ? "bg-primary bg-gradient"
       : todo?.level?.toLowerCase() === "completed"
-      ? "bg-success bg-gradient"
-      : todo?.level?.toLowerCase() === "pending"
-      ? "bg-info bg-gradient"
-      : todo?.level?.toLowerCase() === "review"
-      ? "bg-warning bg-gradient"
-      : todo?.level?.toLowerCase() === "on hold"
-      ? "bg-secondary bg-gradient"
-      : "bg-danger bg-gradient"
+        ? "bg-success bg-gradient"
+        : todo?.level?.toLowerCase() === "pending"
+          ? "bg-info bg-gradient"
+          : todo?.level?.toLowerCase() === "review"
+            ? "bg-warning bg-gradient"
+            : todo?.level?.toLowerCase() === "on hold"
+              ? "bg-secondary bg-gradient"
+              : "bg-danger bg-gradient"
     : "";
 
   const handleDeleteTodo = async (id: any) => {
@@ -72,6 +73,7 @@ const SingleTodo: React.FC<OverAllSt> = ({ todo, setTodoList }) => {
       setIsComplted(false);
     }
   }, [todo?.level]);
+    const currentUser = todo?.associateWith ? (todo?.associateWith as any)?.find((data: any) => data?.email === userData?.email) : {}
 
   return (
     <>
@@ -154,20 +156,22 @@ const SingleTodo: React.FC<OverAllSt> = ({ todo, setTodoList }) => {
           >
             see more
           </p>
-          <div className="d-flex gap-4">
-            <i
-              onClick={() =>
-                setEditTodo((prev) => ({ ...prev, open: true, data: todo }))
-              }
-              className="fa-solid fa-pen-to-square text-primary "
-              style={{ cursor: "pointer" }}
-            ></i>
-            <i
-              onClick={() => handleDeleteTodo(todo?._id)}
-              className="fa-solid fa-trash text-danger "
-              style={{ cursor: "pointer" }}
-            ></i>
-          </div>
+          {currentUser?.role && currentUser?.role === "admin" ?
+            <div className="d-flex gap-4">
+              <i
+                onClick={() =>
+                  setEditTodo((prev) => ({ ...prev, open: true, data: todo }))
+                }
+                className="fa-solid fa-pen-to-square text-primary "
+                style={{ cursor: "pointer" }}
+              ></i>
+              <i
+                onClick={() => handleDeleteTodo(todo?._id)}
+                className="fa-solid fa-trash text-danger "
+                style={{ cursor: "pointer" }}
+              ></i>
+            </div>
+            : ""}
         </div>
         <div
           className="card-footer container"
