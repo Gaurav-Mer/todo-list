@@ -8,7 +8,11 @@ export const InfiniteScroll = (ref: React.MutableRefObject<any>) => {
   useEffect(() => {
     if (ref.current) {
       observeRef.current = new IntersectionObserver(([entry]) => {
-        setIsVisible(entry.isIntersecting);
+        console.log("entry is=> ", entry);
+        if (entry.intersectionRatio !== 1) {
+
+          setIsVisible(entry.isIntersecting);
+        }
       }, {
         threshold: 0.5,
       });
@@ -16,7 +20,6 @@ export const InfiniteScroll = (ref: React.MutableRefObject<any>) => {
       return () => {
         // Cleanup code
         observeRef.current?.disconnect();
-        console.log("unObserve", observeRef.current);
       };
     }
   }, [ref]);
@@ -31,7 +34,6 @@ export const InfiniteScroll = (ref: React.MutableRefObject<any>) => {
       // Cleanup when the component unmounts
       if (observeRef.current) {
         observeRef.current.disconnect();
-        console.log("unObserve", observeRef.current);
       }
     };
   }, [ref]);
